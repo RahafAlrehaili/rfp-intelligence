@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+logs/
+
+_source_data/
+data/raw_docs/
+data/chroma_db/
+data_langchain/kb_documents.json
+
+data/eval_questions_auto.json
+data/eval_questions_v1.json
+data/rag_eval_without_reference.csv

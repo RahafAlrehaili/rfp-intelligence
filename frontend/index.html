@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG — RFP Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sdaia: {
+                            dark: '#0f172a',
+                            blue: '#1e3a8a',
+                            cyan: '#06b6d4',
+                            teal: '#14b8a6',
+                            glow: '#38bdf8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Tajawal', 'sans-serif'],
+                        arabic: ['Tajawal', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #020617;
+            font-family: 'Inter', 'Tajawal', sans-serif;
+            overflow: hidden;
+        }
+
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(6,182,212,0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(30,58,138,0.2), transparent 25%);
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(6,182,212,0.2);
+            box-shadow: 0 0 40px rgba(6,182,212,0.1);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(6,182,212,0.6); }
+
+        @keyframes messagePop {
+            0%   { opacity: 0; transform: translateY(20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+        .animate-msg { animation: messagePop 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+        .typing-dot { animation: typingPulse 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingPulse {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40%            { transform: scale(1); opacity: 1;   }
+        }
+
+        @keyframes modalFadeIn  { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes modalSlideUp {
+            0%   { opacity: 0; transform: translateY(30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+        .modal-backdrop { animation: modalFadeIn  0.2s ease-out forwards; }
+        .modal-content  { animation: modalSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+        .citation-inline {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 22px; height: 22px; padding: 0 6px; margin: 0 2px;
+            border-radius: 6px;
+            background: rgba(6,182,212,0.15);
+            color: #67e8f9;
+            font-size: 11px; font-weight: 600;
+            border: 1px solid rgba(6,182,212,0.3);
+            cursor: pointer; transition: all 0.15s ease;
+            vertical-align: middle;
+        }
+        .citation-inline:hover { background: rgba(6,182,212,0.3); transform: translateY(-1px); }
+
+        .bot-content ul  { margin: 8px 0; padding-left: 20px; list-style: disc; }
+        .bot-content ol  { margin: 8px 0; padding-left: 20px; list-style: decimal; }
+        .bot-content li  { margin: 4px 0; }
+        .bot-content p   { margin: 6px 0; }
+        .bot-content strong { color: #e2e8f0; font-weight: 600; }
+
+        .tab-btn.active {
+            background: rgba(6,182,212,0.15);
+            color: #67e8f9;
+            border-color: rgba(6,182,212,0.4);
+        }
+
+        .similar-card {
+            background: rgba(15,23,42,0.8);
+            border: 1px solid rgba(6,182,212,0.15);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .similar-card:hover {
+            border-color: rgba(6,182,212,0.4);
+            box-shadow: 0 0 20px rgba(6,182,212,0.08);
+        }
+
+        .draft-output { white-space: pre-wrap; line-height: 1.8; }
+
+        .conf-bar {
+            background: linear-gradient(90deg, #06b6d4, #1e3a8a);
+            border-radius: 9999px;
+            transition: width 0.6s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+        .line-clamp-4 {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center p-4 text-slate-200">
+
+    <div class="bg-grid"></div>
+    <div class="absolute top-20 left-20 w-64 h-64 bg-sdaia-blue rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-72 h-72 bg-sdaia-cyan rounded-full mix-blend-screen filter blur-[120px] opacity-20"></div>
+
+    <!-- MAIN PANEL -->
+    <main class="w-full max-w-4xl h-[90vh] glass-panel rounded-3xl flex flex-col relative z-10 overflow-hidden">
+
+        <!-- Header -->
+        <header class="flex-shrink-0 p-5 border-b border-sdaia-cyan/20 flex items-center justify-between bg-gradient-to-r from-transparent via-sdaia-blue/10 to-transparent">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-sdaia-cyan to-sdaia-blue shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-sdaia-cyan tracking-wide flex items-center gap-2">
+                        RAG <span class="text-xs font-normal text-sdaia-cyan/80 border border-sdaia-cyan/30 px-2 py-0.5 rounded-full">AI Labs</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <h2 class="text-base font-semibold text-white">ProofSync- RFP Intelligence</h2>
+                    <p id="connection-status" class="text-xs text-sdaia-cyan/60 flex items-center justify-end gap-1">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse inline-block"></span>
+                        Connecting...
+                    </p>
+                </div>
+                <!-- Reload button -->
+                <button id="reload-btn" title="Reload pipeline after KB update"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-sdaia-cyan/20 text-slate-400 hover:text-sdaia-cyan hover:border-sdaia-cyan/50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mode tabs -->
+        <div class="flex-shrink-0 flex items-center gap-2 px-5 py-3 border-b border-sdaia-cyan/10 bg-[#020617]/30">
+            <button data-mode="qa"      class="tab-btn active text-xs font-semibold px-4 py-1.5 rounded-full border border-sdaia-cyan/20 text-slate-400 transition-all duration-200 hover:text-sdaia-cyan">
+                &#128172; Q&amp;A Chat
+            </button>
+            <button data-mode="draft"   class="tab-btn text-xs font-semibold px-4 py-1.5 rounded-full border border-sdaia-cyan/20 text-slate-400 transition-all duration-200 hover:text-sdaia-cyan">
+                &#9997;&#65039; Draft Section
+            </button>
+            <button data-mode="similar" class="tab-btn text-xs font-semibold px-4 py-1.5 rounded-full border border-sdaia-cyan/20 text-slate-400 transition-all duration-200 hover:text-sdaia-cyan">
+                &#128269; Find Similar
+            </button>
+            <div class="ml-auto text-[10px] text-slate-600 font-mono" id="kb-pill"></div>
+        </div>
+
+        <!-- Q&A MODE -->
+        <div id="mode-qa" class="mode-panel flex flex-col flex-1 min-h-0">
+            <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-5">
+                <!-- Welcome -->
+                <div class="flex justify-center mb-6">
+                    <div class="text-center max-w-md">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sdaia-blue/20 border border-sdaia-cyan/30 flex items-center justify-center">
+                            <svg class="w-7 h-7 text-sdaia-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">Welcome to RAG</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Ask questions about Beamdata capabilities, past projects.The system retrieves grounded answers with verifiable citations.
+                        </p>
+                        <div id="kb-info" class="mt-2 text-[10px] text-slate-500"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q&A Input -->
+            <div class="flex-shrink-0 p-4 pt-2 bg-gradient-to-t from-[#020617] to-transparent">
+                <form id="qa-form" class="relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-sdaia-blue to-sdaia-cyan rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                    <div class="relative flex items-center bg-[#0f172a] border border-sdaia-cyan/30 rounded-2xl p-2 shadow-2xl">
+                        <input type="text" id="qa-input"
+                               class="flex-1 bg-transparent px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none text-sm"
+                               placeholder="Ask about company capabilities, past projects, tender requirements..." required autocomplete="off">
+                        <button type="submit" id="qa-submit"
+                                class="bg-gradient-to-r from-sdaia-cyan to-sdaia-blue text-white p-2.5 rounded-xl transition-all duration-300 shadow-[0_0_10px_rgba(6,182,212,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] hover:scale-105 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+                <div class="text-center mt-2 text-[10px] text-slate-600 font-mono">
+                    LCEL + Hybrid Retrieval + GPT
+                </div>
+            </div>
+        </div>
+
+        <!-- DRAFT MODE -->
+        <div id="mode-draft" class="mode-panel hidden flex-col flex-1 min-h-0">
+            <div class="flex flex-col flex-1 min-h-0 p-5 gap-4">
+
+                <!-- Input form -->
+                <div class="flex-shrink-0 space-y-3">
+                    <div>
+                        <label class="text-xs font-semibold text-sdaia-cyan/80 uppercase tracking-widest mb-1.5 block">RFP Section / Requirement</label>
+                        <textarea id="draft-title" rows="2"
+                                  class="w-full bg-[#0f172a] border border-sdaia-cyan/20 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sdaia-cyan/50 resize-none"
+                                  placeholder="e.g. Describe your company's AI and data engineering experience and key differentiators"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1.5 block">Additional Context <span class="normal-case font-normal text-slate-600">(optional)</span></label>
+                        <input id="draft-context" type="text"
+                               class="w-full bg-[#0f172a] border border-sdaia-cyan/10 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sdaia-cyan/40"
+                               placeholder="e.g. Focus on university clients, keep under 300 words">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="draft-submit"
+                                class="bg-gradient-to-r from-sdaia-cyan to-sdaia-blue text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                            Generate Draft
+                        </button>
+                        <div id="draft-loading" class="hidden items-center gap-2 text-xs text-sdaia-cyan/60">
+                            <div class="flex gap-1">
+                                <div class="typing-dot w-1.5 h-1.5 rounded-full bg-sdaia-cyan"></div>
+                                <div class="typing-dot w-1.5 h-1.5 rounded-full bg-sdaia-cyan"></div>
+                                <div class="typing-dot w-1.5 h-1.5 rounded-full bg-sdaia-cyan"></div>
+                            </div>
+                            Generating draft...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Draft output -->
+                <div id="draft-result" class="hidden flex-1 min-h-0 flex flex-col gap-3 fade-in">
+                    <!-- Meta bar -->
+                    <div class="flex-shrink-0 flex items-center gap-4 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">Words:</span>
+                            <span id="draft-wordcount" class="text-sdaia-cyan font-mono font-semibold"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-500">Confidence:</span>
+                            <span id="draft-conf-label" class="text-sdaia-cyan font-mono font-semibold"></span>
+                        </div>
+                        <div class="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="draft-conf-bar" class="conf-bar h-full" style="width:0%"></div>
+                        </div>
+                        <button id="draft-copy"
+                                class="ml-auto flex items-center gap-1.5 text-xs text-slate-400 hover:text-sdaia-cyan border border-slate-700 hover:border-sdaia-cyan/40 px-3 py-1 rounded-lg transition-all">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+
+                    <!-- Scrollable draft + sources -->
+                    <div class="flex-1 overflow-y-auto space-y-3">
+                        <div class="bg-[#0a1628] border border-sdaia-cyan/15 rounded-2xl p-5">
+                            <div id="draft-text" class="draft-output text-sm text-slate-200 leading-relaxed"></div>
+                        </div>
+                        <div id="draft-sources" class="space-y-2 pb-2"></div>
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="draft-empty" class="flex-1 flex items-center justify-center text-center text-slate-600">
+                    <div>
+                        <div class="text-4xl mb-3">&#9997;&#65039;</div>
+                        <p class="text-sm">Enter an RFP section above and click <strong class="text-slate-500">Generate Draft</strong> to produce a full proposal response with citations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FIND SIMILAR MODE -->
+        <div id="mode-similar" class="mode-panel hidden flex-col flex-1 min-h-0">
+            <div class="flex flex-col flex-1 min-h-0 p-5 gap-4">
+
+                <!-- Input -->
+                <div class="flex-shrink-0 flex gap-3">
+                    <div class="flex-1">
+                        <input id="sim-input" type="text"
+                               class="w-full bg-[#0f172a] border border-sdaia-cyan/20 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sdaia-cyan/50"
+                               placeholder="Topic or requirement (e.g. AI platform for universities, data governance)">
+                    </div>
+                    <select id="sim-doctype"
+                            class="bg-[#0f172a] border border-sdaia-cyan/20 rounded-xl px-3 py-2.5 text-sm text-slate-400 focus:outline-none focus:border-sdaia-cyan/50">
+                        <option value="">All types</option>
+                        <option value="company_intro">Company Intro</option>
+                        <option value="past_projects">Past Projects</option>
+                        <option value="product_intro">Product Intro</option>
+                        <option value="proposal">Proposal</option>
+                        <option value="tender_scope">Tender Scope</option>
+                    </select>
+                    <button id="sim-submit"
+                            class="bg-gradient-to-r from-sdaia-cyan to-sdaia-blue text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Search
+                    </button>
+                </div>
+
+                <!-- Results -->
+                <div id="sim-results" class="flex-1 overflow-y-auto space-y-3 hidden fade-in"></div>
+
+                <!-- Loading -->
+                <div id="sim-loading" class="hidden flex-1 flex items-center justify-center">
+                    <div class="flex flex-col items-center gap-3 text-sdaia-cyan/60">
+                        <div class="flex gap-2">
+                            <div class="typing-dot w-2 h-2 rounded-full bg-sdaia-cyan"></div>
+                            <div class="typing-dot w-2 h-2 rounded-full bg-sdaia-cyan"></div>
+                            <div class="typing-dot w-2 h-2 rounded-full bg-sdaia-cyan"></div>
+                        </div>
+                        <span class="text-xs">Searching knowledge base...</span>
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="sim-empty" class="flex-1 flex items-center justify-center text-center text-slate-600">
+                    <div>
+                        <div class="text-4xl mb-3">&#128269;</div>
+                        <p class="text-sm">Enter a topic above to find reusable content blocks from the knowledge base — past proposals, capability descriptions, and tender scopes.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Citation Modal -->
+    <div id="citation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div id="modal-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm modal-backdrop"></div>
+        <div class="relative w-full max-w-2xl max-h-[80vh] glass-panel rounded-2xl flex flex-col modal-content overflow-hidden">
+            <div class="p-5 border-b border-sdaia-cyan/20 flex items-center justify-between bg-gradient-to-r from-sdaia-blue/20 to-transparent">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sdaia-cyan/20 border border-sdaia-cyan/40 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-sdaia-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold text-base">Source <span id="modal-citation-num"></span></h3>
+                        <p id="modal-source-info" class="text-xs text-sdaia-cyan/80"></p>
+                    </div>
+                </div>
+                <button id="modal-close" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700/50 transition">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto flex-1">
+                <p class="text-xs text-slate-500 mb-2">Retrieved chunk from knowledge base:</p>
+                <div id="modal-text" class="text-sm text-slate-200 leading-relaxed bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 whitespace-pre-wrap"></div>
+                <div class="mt-3 flex items-center gap-4 text-xs text-slate-500">
+                    <div>Score: <span id="modal-score" class="text-sdaia-cyan font-mono"></span></div>
+                    <div id="modal-doctype" class="text-sdaia-cyan/60 capitalize"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-50 bg-sdaia-blue/90 border border-sdaia-cyan/30 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl backdrop-blur-sm transition-all">
+        <span id="toast-msg"></span>
+    </div>
+
+    <script>
+    // ============================================================
+    //  CONFIG
+    // ============================================================
+    const API_BASE = (location.protocol === 'file:') ? 'http://localhost:8000' : '';
+
+    // ============================================================
+    //  STATE
+    // ============================================================
+    let lastChunks = [];
+
+    // ============================================================
+    //  UTILS
+    // ============================================================
+    function isArabic(text) {
+        // Arabic Unicode blocks: Basic, Supplement, Presentation Forms A/B
+        return /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]/.test(text);
+    }
+
+    function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s ?? '';
+        return d.innerHTML;
+    }
+
+    let toastTimer = null;
+    function showToast(msg, duration = 2500) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-msg').textContent = msg;
+        toast.classList.remove('hidden');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.add('hidden'), duration);
+    }
+
+    async function apiPost(path, body) {
+        const res = await fetch(API_BASE + path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error(`HTTP ${res.status}: ${err.slice(0, 300)}`);
+        }
+        return res.json();
+    }
+
+    // ============================================================
+    //  HEALTH CHECK
+    // ============================================================
+    async function checkHealth() {
+        const statusEl = document.getElementById('connection-status');
+        const kbInfo   = document.getElementById('kb-info');
+        const kbPill   = document.getElementById('kb-pill');
+        try {
+            const res  = await fetch(API_BASE + '/api/health');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            const cfg = data.config || {};
+            const llmModel = cfg.llm_model || "LLM";
+            const embeddingModel = cfg.embedding_model || "Embedding model";
+
+            statusEl.innerHTML = `
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+                Connected &middot; ${data.api || "LCEL"}`;
+            statusEl.className = 'text-xs text-emerald-400 flex items-center justify-end gap-1';
+
+            if (typeof data.chunks_in_db !== "undefined") {
+                kbInfo.textContent = `${(data.sources || []).length} files · ${data.chunks_in_db} chunks · ${llmModel}`;
+                kbPill.textContent = `${data.chunks_in_db} chunks`;
+            } else {
+                kbInfo.textContent = `${llmModel} · ${embeddingModel}`;
+                kbPill.textContent = "LCEL";
+            }
+        } catch (e) {
+            statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span> Server offline`;
+            statusEl.className = 'text-xs text-red-400 flex items-center justify-end gap-1';
+            kbInfo.textContent  = 'Start the server: uvicorn src.api:app --reload';
+        }
+    }
+    checkHealth();
+
+    // ============================================================
+    //  RELOAD
+    // ============================================================
+    document.getElementById('reload-btn').addEventListener('click', async () => {
+        try {
+            await fetch(API_BASE + '/api/reload', { method: 'POST' });
+            showToast('Pipeline reloaded — models will reinitialize on next request');
+            await checkHealth();
+        } catch (e) {
+            showToast('Reload failed: ' + e.message, 4000);
+        }
+    });
+
+    // ============================================================
+    //  MODE TABS
+    // ============================================================
+    const modePanels = {
+        qa:      document.getElementById('mode-qa'),
+        draft:   document.getElementById('mode-draft'),
+        similar: document.getElementById('mode-similar'),
+    };
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const mode = btn.dataset.mode;
+            Object.entries(modePanels).forEach(([k, el]) => {
+                if (k === mode) {
+                    el.classList.remove('hidden');
+                    el.classList.add('flex');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
+            });
+        });
+    });
+
+    // ============================================================
+    //  Q&A CHAT
+    // ============================================================
+    const chatBox  = document.getElementById('chat-box');
+    const qaForm   = document.getElementById('qa-form');
+    const qaInput  = document.getElementById('qa-input');
+    const qaSubmit = document.getElementById('qa-submit');
+
+    qaForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = qaInput.value.trim();
+        if (!text) return;
+        appendUserMsg(text);
+        qaInput.value = '';
+        qaSubmit.disabled = true;
+
+        const typingId = showTyping();
+        try {
+            const data = await apiPost('/api/qa', { question: text });
+
+            removeEl(typingId);
+
+            lastChunks = (data.sources || []).map(s => ({
+                citation_number: s.citation_number,
+                source: s.source || '',
+                page_number: s.page_number || s.page || '',
+                score: s.score || 0,
+                doc_type: s.doc_type || '',
+                text: s.text || s.snippet || '',
+            }));
+
+            appendBotMsg(data.answer || '', data.sources || [], true);
+        } catch (err) {
+            removeEl(typingId);
+            appendErrMsg('Server error', err.message);
+        } finally {
+            qaSubmit.disabled = false;
+            qaInput.focus();
+        }
+    });
+
+    async function streamQA(question, typingId) {
+        const res = await fetch(API_BASE + '/api/query_stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, top_k: 5, return_chunks: true }),
+        });
+        if (!res.ok) {
+            removeEl(typingId);
+            const err = await res.text();
+            appendErrMsg('Server error', `HTTP ${res.status}: ${err.slice(0, 300)}`);
+            return;
+        }
+
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer    = '';
+        let streamEl  = null;   // the streaming text container
+        let rawText   = '';     // accumulate full text for final formatting
+
+        const read = async () => {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    let event;
+                    try { event = JSON.parse(line.slice(6)); } catch { continue; }
+
+                    if (event.type === 'token') {
+                        // First token — swap typing indicator for real message
+                        if (!streamEl) {
+                            removeEl(typingId);
+                            streamEl = createStreamingMsg();
+                        }
+                        rawText += event.text;
+                        appendStreamToken(streamEl, event.text);
+
+                    } else if (event.type === 'done') {
+                        removeEl(typingId);
+                        lastChunks = event.retrieved_chunks || [];
+                        if (streamEl) {
+                            // Replace raw streamed text with formatted version
+                            finalizeStreamMsg(streamEl, rawText, event.sources || [], event.has_answer);
+                        } else {
+                            // Cached / instant response with no tokens streamed
+                            appendBotMsg(rawText || '', event.sources || [], event.has_answer);
+                        }
+
+                    } else if (event.type === 'error') {
+                        removeEl(typingId);
+                        appendErrMsg('Generation error', event.message || '');
+                    }
+                }
+            }
+        };
+        await read();
+    }
+
+    function createStreamingMsg() {
+        const w = document.createElement('div');
+        w.className = 'flex justify-start animate-msg w-full gap-3';
+        w.innerHTML = `
+            <div class="w-9 h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-sdaia-cyan to-sdaia-blue flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <div class="max-w-[80%] bg-[#0f172a]/80 border border-sdaia-cyan/20 px-5 py-3.5 rounded-2xl rounded-tl-sm shadow-lg">
+                <div class="stream-text text-sm leading-relaxed text-slate-200 whitespace-pre-wrap"></div>
+                <span class="stream-cursor inline-block w-0.5 h-4 bg-sdaia-cyan ml-0.5 animate-pulse align-middle"></span>
+            </div>`;
+        chatBox.appendChild(w);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return w;
+    }
+
+    function appendStreamToken(wrapperEl, token) {
+        const textEl = wrapperEl.querySelector('.stream-text');
+        if (textEl) {
+            textEl.textContent += token;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    function finalizeStreamMsg(wrapperEl, fullText, sources, hasAnswer) {
+        const bubble = wrapperEl.querySelector('.max-w-\\[80\\%\\]');
+        if (!bubble) return;
+        const dir = isArabic(fullText) ? 'rtl' : 'ltr';
+
+        let sourcesHtml = '';
+        if (sources.length > 0) {
+            sourcesHtml = `<div class="mt-3 pt-3 border-t border-slate-700/50 flex flex-wrap gap-2">`;
+            sources.forEach(s => {
+                sourcesHtml += `
+                    <button type="button" data-citation="${s.citation_number}"
+                            class="source-pill inline-flex items-center gap-1.5 bg-sdaia-cyan/10 text-sdaia-cyan text-[11px] px-2.5 py-1 rounded-md border border-sdaia-cyan/20 hover:bg-sdaia-cyan/20 transition-colors cursor-pointer">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        [${s.citation_number}] ${escapeHtml(s.source)}${(s.page_number || s.page) ? ' · p' + (s.page_number || s.page) : ''}
+                    </button>`;
+            });
+            sourcesHtml += `</div>`;
+        } else if (!hasAnswer) {
+            sourcesHtml = `<div class="mt-3 pt-3 border-t border-slate-700/50 text-xs text-amber-400/80">
+                Not enough information in the knowledge base. Try rephrasing.
+            </div>`;
+        }
+
+        bubble.innerHTML = `
+            <div dir="${dir}" class="bot-content text-sm leading-relaxed text-slate-200">${renderWithCitations(fullText)}</div>
+            ${sourcesHtml}`;
+
+        bubble.querySelectorAll('.citation-inline, .source-pill').forEach(el => {
+            el.addEventListener('click', () => openCitationModal(parseInt(el.dataset.citation)));
+        });
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendUserMsg(text) {
+        const w   = document.createElement('div');
+        w.className = 'flex justify-end animate-msg w-full';
+        const dir = isArabic(text) ? 'rtl' : 'ltr';
+        w.innerHTML = `
+            <div class="max-w-[80%] bg-gradient-to-br from-sdaia-blue to-[#1e293b] text-white px-5 py-3 rounded-2xl rounded-tr-sm shadow-lg border border-sdaia-cyan/20">
+                <p dir="${dir}" class="leading-relaxed text-sm">${escapeHtml(text)}</p>
+            </div>`;
+        chatBox.appendChild(w);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendBotMsg(answer, sources, hasAnswer) {
+        const w   = document.createElement('div');
+        w.className = 'flex justify-start animate-msg w-full gap-3';
+        const dir = isArabic(answer) ? 'rtl' : 'ltr';
+
+        let sourcesHtml = '';
+        if (sources.length > 0) {
+            sourcesHtml = `<div class="mt-3 pt-3 border-t border-slate-700/50 flex flex-wrap gap-2">`;
+            sources.forEach(s => {
+                sourcesHtml += `
+                    <button type="button" data-citation="${s.citation_number}"
+                            class="source-pill inline-flex items-center gap-1.5 bg-sdaia-cyan/10 text-sdaia-cyan text-[11px] px-2.5 py-1 rounded-md border border-sdaia-cyan/20 hover:bg-sdaia-cyan/20 transition-colors cursor-pointer">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        [${s.citation_number}] ${escapeHtml(s.source)}${(s.page_number || s.page) ? ' · p' + (s.page_number || s.page) : ''}
+                    </button>`;
+            });
+            sourcesHtml += `</div>`;
+        } else if (!hasAnswer) {
+            sourcesHtml = `<div class="mt-3 pt-3 border-t border-slate-700/50 text-xs text-amber-400/80">
+                Not enough information in the knowledge base. Try rephrasing.
+            </div>`;
+        }
+
+        w.innerHTML = `
+            <div class="w-9 h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-sdaia-cyan to-sdaia-blue flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <div class="max-w-[80%] bg-[#0f172a]/80 border border-sdaia-cyan/20 px-5 py-3.5 rounded-2xl rounded-tl-sm shadow-lg">
+                <div dir="${dir}" class="bot-content text-sm leading-relaxed text-slate-200">${renderWithCitations(answer)}</div>
+                ${sourcesHtml}
+            </div>`;
+
+        w.querySelectorAll('.citation-inline, .source-pill').forEach(el => {
+            el.addEventListener('click', () => openCitationModal(parseInt(el.dataset.citation)));
+        });
+
+        chatBox.appendChild(w);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendErrMsg(title, detail) {
+        const w = document.createElement('div');
+        w.className = 'flex justify-start animate-msg w-full gap-3';
+        w.innerHTML = `
+            <div class="w-9 h-9 flex-shrink-0 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div class="max-w-[80%] bg-red-500/10 border border-red-500/30 px-5 py-3.5 rounded-2xl rounded-tl-sm">
+                <p class="text-red-300 font-semibold text-sm mb-1">${escapeHtml(title)}</p>
+                <pre class="text-xs text-red-200/70 whitespace-pre-wrap font-mono">${escapeHtml(detail)}</pre>
+            </div>`;
+        chatBox.appendChild(w);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showTyping() {
+        const id = 'typing-' + Date.now();
+        const w  = document.createElement('div');
+        w.id = id;
+        w.className = 'flex justify-start animate-msg w-full gap-3';
+        w.innerHTML = `
+            <div class="w-9 h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-sdaia-cyan to-sdaia-blue flex items-center justify-center shadow-lg">
+                <svg class="w-5 h-5 text-white animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <div class="bg-[#0f172a]/80 border border-sdaia-cyan/20 px-5 py-3.5 rounded-2xl rounded-tl-sm shadow-lg">
+                <div class="flex gap-1.5">
+                    <div class="typing-dot w-2 h-2 rounded-full bg-sdaia-cyan"></div>
+                    <div class="typing-dot w-2 h-2 rounded-full bg-sdaia-cyan"></div>
+                    <div class="typing-dot w-2 h-2 rounded-full bg-sdaia-cyan"></div>
+                </div>
+            </div>`;
+        chatBox.appendChild(w);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return id;
+    }
+
+    function removeEl(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+    function renderWithCitations(text) {
+        let html = escapeHtml(text);
+        const lines = html.split('\n');
+        const out = []; let inList = false;
+        for (const line of lines) {
+            // Match - / * / bullet chars
+            const m = line.match(/^[\s]*[-*•‣◦]\s+(.*)/);
+            if (m) {
+                if (!inList) { out.push('<ul>'); inList = true; }
+                out.push(`<li>${m[1].replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</li>`);
+            } else {
+                if (inList) { out.push('</ul>'); inList = false; }
+                const formatted = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                if (line.trim()) out.push(`<p>${formatted}</p>`);
+            }
+        }
+        if (inList) out.push('</ul>');
+        html = out.join('');
+        html = html.replace(/\[(\d+)\]/g, (_, n) =>
+            `<span class="citation-inline" data-citation="${n}">[${n}]</span>`
+        );
+        return html;
+    }
+
+    // ============================================================
+    //  CITATION MODAL
+    // ============================================================
+
+    
+function openCitationModal(num) {
+
+    const chunk = lastChunks.find(
+        c => c.citation_number === num
+    );
+
+    if (!chunk) {
+        console.log("Citation not found:", num);
+        return;
+    }
+
+    document.getElementById('modal-citation-num').textContent = `[${num}]`;
+
+    document.getElementById('modal-source-info').textContent =
+        `${chunk.source}${chunk.page_number ? ' · page ' + chunk.page_number : ''}`;
+
+    document.getElementById('modal-score').textContent =
+        chunk.score ? chunk.score.toFixed(4) : 'N/A';
+
+    document.getElementById('modal-doctype').textContent =
+        chunk.doc_type || '';
+
+    const modalText = document.getElementById('modal-text');
+
+    modalText.textContent = chunk.text || '';
+
+    if (isArabic(chunk.text || '')) {
+        modalText.setAttribute('dir', 'rtl');
+    } else {
+        modalText.setAttribute('dir', 'ltr');
+    }
+
+    const modal = document.getElementById('citation-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+    function closeModal() {
+        const modal = document.getElementById('citation-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-backdrop').addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // ============================================================
+    //  DRAFT MODE
+    // ============================================================
+    const draftSubmit  = document.getElementById('draft-submit');
+    const draftLoading = document.getElementById('draft-loading');
+    const draftResult  = document.getElementById('draft-result');
+    const draftEmpty   = document.getElementById('draft-empty');
+
+    draftSubmit.addEventListener('click', async () => {
+        const title   = document.getElementById('draft-title').value.trim();
+        const context = document.getElementById('draft-context').value.trim();
+        if (!title) { showToast('Please enter a section title'); return; }
+
+        draftSubmit.disabled = true;
+        draftLoading.classList.remove('hidden');
+        draftLoading.classList.add('flex');
+        draftResult.classList.add('hidden');
+        draftEmpty.classList.add('hidden');
+
+        try {
+            const data = await apiPost('/api/draft', {
+                section_prompt: title,
+                extra_instructions: context || "",
+            });
+
+            document.getElementById('draft-text').textContent = data.draft_text;
+            document.getElementById('draft-wordcount').textContent = (data.word_count || 0) + ' words';
+
+            document.getElementById('draft-conf-label').textContent = 'N/A';
+            document.getElementById('draft-conf-bar').style.width   = '0%';
+
+            const srcEl = document.getElementById('draft-sources');
+            if (data.sources && data.sources.length > 0) {
+                srcEl.innerHTML = `
+                    <p class="text-xs text-slate-500 uppercase tracking-widest font-semibold mb-2">Sources Used</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${data.sources.map(s => `
+                            <span class="inline-flex items-center gap-1 bg-sdaia-cyan/10 text-sdaia-cyan text-[11px] px-2.5 py-1 rounded-md border border-sdaia-cyan/20">
+                                [${s.citation_number}] ${escapeHtml(s.source)}${(s.page_number || s.page) ? ' · p' + (s.page_number || s.page) : ''}
+                                <span class="text-slate-500">${Math.round(s.score * 100)}%</span>
+                            </span>`).join('')}
+                    </div>`;
+            } else {
+                srcEl.innerHTML = '';
+            }
+
+            draftResult.classList.remove('hidden');
+            draftResult.classList.add('flex');
+        } catch (err) {
+            draftEmpty.classList.remove('hidden');
+            showToast('Draft failed: ' + err.message, 4000);
+        } finally {
+            draftSubmit.disabled = false;
+            draftLoading.classList.add('hidden');
+            draftLoading.classList.remove('flex');
+        }
+    });
+
+    document.getElementById('draft-copy').addEventListener('click', () => {
+        const text = document.getElementById('draft-text').textContent;
+        navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+    });
+
+    document.getElementById('draft-title').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); draftSubmit.click(); }
+    });
+
+    // ============================================================
+    //  FIND SIMILAR MODE
+    // ============================================================
+    const simSubmit  = document.getElementById('sim-submit');
+    const simInput   = document.getElementById('sim-input');
+    const simDoctype = document.getElementById('sim-doctype');
+    const simResults = document.getElementById('sim-results');
+    const simLoading = document.getElementById('sim-loading');
+    const simEmpty   = document.getElementById('sim-empty');
+
+    const TYPE_STYLE = {
+        company_intro: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+        past_projects: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+        product_intro: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+        proposal:      'text-amber-400 bg-amber-400/10 border-amber-400/20',
+        tender_scope:  'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
+    };
+    const TYPE_LABEL = {
+        company_intro: 'Company Intro',
+        past_projects: 'Past Projects',
+        product_intro: 'Product Intro',
+        proposal:      'Proposal',
+        tender_scope:  'Tender Scope',
+    };
+
+    async function runSearch() {
+        const q  = simInput.value.trim();
+        const dt = simDoctype.value;
+        if (!q) { showToast('Enter a search query'); return; }
+
+        simSubmit.disabled = true;
+        simResults.classList.add('hidden');
+        simEmpty.classList.add('hidden');
+        simLoading.classList.remove('hidden');
+        simLoading.classList.add('flex');
+
+        try {
+            const body = { query: q, top_k: 8 };
+            if (dt) body.doc_type = dt;
+            const data  = await apiPost('/api/similar', body);
+            const items = data.items || [];
+
+            simLoading.classList.add('hidden');
+            simLoading.classList.remove('flex');
+
+            if (items.length === 0) {
+                simEmpty.classList.remove('hidden');
+                return;
+            }
+
+            simResults.innerHTML = `<div class="text-xs text-slate-500 mb-1 flex-shrink-0">${items.length} results for "<span class="text-sdaia-cyan">${escapeHtml(q)}</span>"</div>`;
+
+            items.forEach(item => {
+                const style = TYPE_STYLE[item.doc_type] || 'text-slate-400 bg-slate-400/10 border-slate-400/20';
+                const label = TYPE_LABEL[item.doc_type] || item.doc_type;
+                const card  = document.createElement('div');
+                card.className = 'similar-card rounded-xl p-4 space-y-2 flex-shrink-0';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${style}">${label}</span>
+                            ${item.is_proposal ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded border text-amber-400 bg-amber-400/10 border-amber-400/20">Proposal</span>' : ''}
+                            ${item.section ? `<span class="text-[10px] text-slate-500 truncate max-w-xs">${escapeHtml(item.section)}</span>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <span class="text-xs font-mono text-sdaia-cyan">${((item.score || item.hybrid_score || 0) * 100).toFixed(1)}%</span>
+                            <button class="copy-chunk text-slate-500 hover:text-sdaia-cyan transition-colors p-1 rounded" title="Copy text">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed" class="line-clamp-4">${escapeHtml(item.text)}</p>
+                    <p class="text-[10px] text-slate-600 truncate">${escapeHtml(item.source)}</p>`;
+
+                card.querySelector('.copy-chunk').addEventListener('click', () => {
+                    navigator.clipboard.writeText(item.text).then(() => showToast('Copied!'));
+                });
+
+                simResults.appendChild(card);
+            });
+
+            simResults.classList.remove('hidden');
+        } catch (err) {
+            simLoading.classList.add('hidden');
+            simLoading.classList.remove('flex');
+            simEmpty.classList.remove('hidden');
+            showToast('Search failed: ' + err.message, 4000);
+        } finally {
+            simSubmit.disabled = false;
+        }
+    }
+
+    simSubmit.addEventListener('click', runSearch);
+    simInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+
+    // ============================================================
+    //  INIT
+    // ============================================================
+    document.getElementById('qa-input').focus();
+    </script>
+</body>
+</html>
