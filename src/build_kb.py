@@ -1,22 +1,25 @@
 """
 LangChain Knowledge Base Builder for RFP Intelligence.
 
-This version keeps your original business logic:
-- ZIP-based source reading
-- PDF page skip rules
-- DOCX section skip/stop rules
-- Cleaning
-- Optional LLM-based sensitive data obfuscation before chunking
-- Tags + metadata
-- Global deduplication
+This script builds the RAG knowledge base from ZIP-based source folders.
+It extracts content from company PDFs, the USask DOCX proposal, and selected
+Excel tender scopes, converts the extracted content into LangChain Document
+objects, saves kb_documents.json, and optionally rebuilds the Chroma index.
 
-But changes the RAG object model to LangChain:
-- Chunks become langchain_core.documents.Document
-- Chunking is delegated to src/chunking_langchain.py
-- Chroma indexing is delegated to src/vector_store.py
+Processing flow:
+    source ZIP files
+    -> file-specific parsing
+    -> cleaning / optional masking / capability extraction
+    -> chunking with SmartChunker
+    -> LangChain Document(page_content, metadata)
+    -> JSON export
+    -> Chroma vector index
+
+This version includes timing logs for each pipeline and the full build.
 
 Run:
     python src/build_kb_langchain.py --reset
+    python src/build_kb_langchain.py --no-index
 """
 
 from __future__ import annotations
@@ -27,12 +30,15 @@ import json
 import os
 import re
 import tempfile
-import time
 import zipfile
+import time
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
+import multiprocessing
+from tqdm import tqdm  # pip install tqdm
 
 import pdfplumber
 from dotenv import load_dotenv
@@ -63,7 +69,7 @@ DOCS_JSON = DATA_DIR / "kb_documents.json"
 CHROMA_DIR = DATA_DIR / "chroma_db"
 USASK_RFP_ID = "USask-GenAI-730126"
 
-SCRIPT_VERSION = "v1.0.0-langchain-documents"
+SCRIPT_VERSION = "v2.1.0-parallel-processing-timing"
 PROCESSING_TIMESTAMP = datetime.now(timezone.utc).isoformat()
 
 CHUNKER = SmartChunker(
@@ -73,8 +79,44 @@ CHUNKER = SmartChunker(
 )
 
 # =============================================================================
+# 1.1) PARALLEL PROCESSING CONFIGURATION
+# =============================================================================
+
+"""
+Worker configuration used by the parallel pipelines.
+
+- ProcessPoolExecutor is used for PDF parsing tasks that run as separate
+  processes. Each submitted task receives the PDF bytes and returns a list of
+  LangChain Documents.
+- ThreadPoolExecutor is used for Excel scope files because each Excel task calls
+  the LLM to generate a capability summary. Each submitted task returns the
+  extracted capability payload, which is converted into Documents afterward.
+
+The values below are printed at startup so the build log shows the runtime
+configuration used for the experiment.
+"""
+
+# Runtime worker settings
+CPU_CORES = multiprocessing.cpu_count()
+MAX_WORKERS_CPU = CPU_CORES  # processes for PDF workers
+MAX_WORKERS_IO = min(20, CPU_CORES * 2)  # threads for Excel / LLM workers
+DOCX_SECTION_WORKERS = min(8, MAX_WORKERS_IO)  # threads for DOCX section masking/tagging
+
+print(f"🔧 Parallel Processing Configuration:")
+print(f"   - CPU cores available: {CPU_CORES}")
+print(f"   - ProcessPoolExecutor workers: {MAX_WORKERS_CPU} (CPU-bound)")
+print(f"   - ThreadPoolExecutor workers: {MAX_WORKERS_IO} (I/O-bound)")
+print(f"   - DOCX section workers: {DOCX_SECTION_WORKERS} (LLM masking/tagging)")
+
+# =============================================================================
 # 2) FILE RULES
 # =============================================================================
+
+"""
+File rules used by the ingestion pipelines.
+Each entry maps a source file to the metadata and tags that should be attached
+when its chunks are converted into LangChain Documents.
+"""
 
 COMPANY_PDF_FILES: Dict[str, Dict[str, object]] = {
     "Beamdata Past Project Descriptions.pdf": {
@@ -138,9 +180,8 @@ DEFAULT_DOCX_SKIP_SECTION_PATTERNS = {
     "research",
     "remark",
 }
-# Target Excel tender files to transform into reusable Beam Data capability summaries.
-# Use normalized file stems instead of exact filenames to avoid missing files because
-# of capitalization, extra spaces, or the .xlsx extension.
+
+# Target Excel tender files for capability extraction
 TENDER_EXCEL_TARGET_FILES = {
     "usask - genai software",
     "ttc - implementation of a high availability sql database solution",
@@ -149,25 +190,35 @@ TENDER_EXCEL_TARGET_FILES = {
     "icbc bid planner - learning design and authoring tool",
     "glenbow-alberta institute - website development",
     "design and implementation of an ai-powered data platform for pakistan customs",
-    
 }
 
+# =============================================================================
+# 3) HELPER FUNCTIONS
+# =============================================================================
 
 def normalize_file_stem(name: str) -> str:
+    """Return a normalized filename stem for matching Excel targets."""
     stem = Path(name).stem.lower().strip()
     stem = re.sub(r"\s+", " ", stem)
     return stem
 
-
 def slugify_tag(value: Any) -> str:
+    """Convert a capability or industry value into a safe metadata tag."""
     tag = str(value or "").strip().lower()
     tag = tag.replace("/", "-").replace("&", "and")
     tag = re.sub(r"[^a-z0-9]+", "-", tag)
     tag = re.sub(r"-+", "-", tag).strip("-")
     return tag
+
 # =============================================================================
-# 3) TAGS
+# 4) TAGGING SYSTEM
 # =============================================================================
+
+"""
+Tagging helpers.
+Auto-tagging scans chunk text for known keywords. LLM tagging optionally adds
+context-aware tags from the same controlled tag list.
+"""
 
 _TAG_MAP: Dict[str, List[str]] = {
     "genai": ["generative ai", "large language model", "llm", "gpt", "chatgpt", "genai", "foundation model"],
@@ -192,8 +243,8 @@ _TAG_MAP: Dict[str, List[str]] = {
     "data-governance": ["data governance", "data quality", "master data", "data catalog", "lineage"],
 }
 
-
 def auto_tag(text: str, base_tags: Optional[List[str]] = None) -> List[str]:
+    """Add keyword-based tags to a text block using the controlled tag map."""
     tags = set(base_tags or [])
     t = text.lower()
     for tag, keywords in _TAG_MAP.items():
@@ -201,16 +252,19 @@ def auto_tag(text: str, base_tags: Optional[List[str]] = None) -> List[str]:
             tags.add(tag)
     return sorted(tags)
 
-
 def llm_tag(text: str, client: OpenAI, base_tags: Optional[List[str]] = None) -> List[str]:
+    """Ask the LLM to add up to five controlled tags for the given text."""
     base = auto_tag(text, base_tags)
     tag_list = ", ".join(sorted(_TAG_MAP.keys()))
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",
-            temperature=0,
-            max_tokens=60,
+            temperature=0.1,  # low temperature for stable tag output
+            max_tokens=80,
             messages=[{
+                "role": "system",
+                "content": "You are an expert tagger for technical documents. Choose the most relevant tags."
+            }, {
                 "role": "user",
                 "content": (
                     f"Choose up to 5 relevant tags from this list for the text below.\n"
@@ -227,8 +281,15 @@ def llm_tag(text: str, client: OpenAI, base_tags: Optional[List[str]] = None) ->
         return base
 
 # =============================================================================
-# 3.5) OPTIONAL LLM-BASED SENSITIVE DATA OBFUSCATION
+# 5) SENSITIVE DATA OBFUSCATION
 # =============================================================================
+
+"""
+Sensitive-data obfuscation helpers.
+The LLM masking step removes names, client names, addresses, and similar
+sensitive values. The regex pass then catches common structured values such as
+emails, phone numbers, and URLs.
+"""
 
 _MASKING_WHITELIST_STR = (
     "Beamdata, WeCloudData, Beam Data, We Cloud Data, BeamData AI, "
@@ -238,36 +299,18 @@ _MASKING_WHITELIST_STR = (
 )
 
 def _regex_validate_and_fix(text: str) -> str:
-
+    """Replace emails, phone numbers, and URLs with standard placeholders."""
     patterns = [
-        (
-            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
-            "[EMAIL]"
-        ),
-        (
-            r"(?:\+?\d[\d\-\s()]{7,}\d)",
-            "[PHONE]"
-        ),
-        (
-            r"https?://\S+|www\.\S+",
-            "[URL]"
-        ),
+        (r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b", "[EMAIL]"),
+        (r"(?:\+?\d[\d\-\s()]{7,}\d)", "[PHONE]"),
+        (r"https?://\S+|www\.\S+", "[URL]"),
     ]
-
     for pattern, replacement in patterns:
-        text = re.sub(
-            pattern,
-            replacement,
-            text,
-            flags=re.IGNORECASE,
-        )
-
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
     return text
+
 def _mask_via_llm(text: str, client: OpenAI) -> str:
-    """
-    Use the LLM to obfuscate sensitive information while preserving technical content.
-    If the LLM call fails, return the original text so the pipeline does not crash.
-    """
+    """Use the LLM to obfuscate sensitive values while preserving the text meaning."""
     prompt = (
         "You are a sensitive-data obfuscation tool.\n\n"
         "Obfuscate any sensitive information in the text below using these placeholders:\n"
@@ -286,7 +329,6 @@ def _mask_via_llm(text: str, client: OpenAI) -> str:
         "- Preserve the original structure and formatting as much as possible.\n\n"
         f"Text:\n{text}"
     )
-
     try:
         resp = client.chat.completions.create(
             model=config.LLM_MODEL,
@@ -299,9 +341,8 @@ def _mask_via_llm(text: str, client: OpenAI) -> str:
         print(f"  ⚠️  LLM masking failed: {e} — keeping original text")
         return text
 
-
 # =============================================================================
-# 4) HELPERS
+# 6) TEXT CLEANING HELPERS
 # =============================================================================
 
 FOOTER_PATTERNS = [
@@ -311,8 +352,8 @@ FOOTER_PATTERNS = [
     r"(?m)^CONFIDENTIAL\s*$",
 ]
 
-
 def clean(text: str) -> str:
+    """Remove repeated footer/header noise and normalize whitespace."""
     for pattern in FOOTER_PATTERNS:
         text = re.sub(pattern, "", text)
     text = re.sub(r"[-_]{8,}", "", text)
@@ -320,28 +361,28 @@ def clean(text: str) -> str:
     text = re.sub(r"[ \t]+", " ", text)
     return text.strip()
 
-
 def sha256_bytes(data: bytes) -> str:
+    """Return SHA-256 for raw bytes."""
     return hashlib.sha256(data).hexdigest()
 
-
 def file_hash(path: Path) -> str:
+    """Return SHA-256 for a file on disk."""
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for block in iter(lambda: f.read(1024 * 1024), b""):
             h.update(block)
     return h.hexdigest()
 
-
 def resolve_zip_path(preferred_path: Path, base_name: str) -> Optional[Path]:
+    """Find a source ZIP by the configured path or by matching the base name."""
     if preferred_path.exists():
         return preferred_path
     candidates = list(SOURCE_DATA_DIR.glob(f"{base_name}*.zip"))
     candidates += [p for p in SOURCE_DATA_DIR.glob(f"{base_name}*") if p.is_file() and p.suffix.lower() == ".zip"]
     return candidates[0] if candidates else None
 
-
 def find_zip_entry(zf: zipfile.ZipFile, target_file_name: str) -> Optional[str]:
+    """Find a target file inside an opened ZIP archive by filename."""
     target_lower = target_file_name.lower()
     for entry in zf.infolist():
         if entry.is_dir():
@@ -350,9 +391,8 @@ def find_zip_entry(zf: zipfile.ZipFile, target_file_name: str) -> Optional[str]:
             return entry.filename
     return None
 
-
 def safe_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
-    """Chroma accepts only str/int/float/bool/None metadata, so serialize lists/dicts."""
+    """Convert metadata values into Chroma-safe scalar strings/numbers/bools."""
     safe: Dict[str, Any] = {}
     for key, value in metadata.items():
         if value is None:
@@ -362,7 +402,6 @@ def safe_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
         else:
             safe[key] = json.dumps(value, ensure_ascii=False)
     return safe
-
 
 def build_document_metadata(
     *,
@@ -377,6 +416,27 @@ def build_document_metadata(
     content_type: Optional[str] = None,
     file_ext: Optional[str] = None,
 ) -> Dict[str, Any]:
+    """
+    Build standard document metadata structure.
+    
+    This ensures consistent metadata across all document types.
+    All documents include processing timestamp and script version.
+    
+    Args:
+        source: Original file name
+        source_folder: ZIP file name
+        doc_type: Type of document
+        pipeline_name: Name of processing pipeline
+        document_tags: List of tags
+        file_hash_value: SHA-256 hash of file
+        rfp_id: RFP identifier (if applicable)
+        is_proposal: Whether this is a proposal document
+        content_type: Type of content
+        file_ext: File extension
+        
+    Returns:
+        Metadata dictionary
+    """
     return {
         "source": source,
         "source_folder": source_folder,
@@ -392,8 +452,30 @@ def build_document_metadata(
         "script_version": SCRIPT_VERSION,
     }
 
-
-def make_chunk_id(document_metadata: Dict[str, Any], chunk_index: int, page: Optional[int] = None, section: str = "") -> str:
+def make_chunk_id(
+    document_metadata: Dict[str, Any],
+    chunk_index: int,
+    page: Optional[int] = None,
+    section: str = ""
+) -> str:
+    """
+    Generate a unique chunk ID.
+    
+    The ID is based on:
+    - Document source
+    - File hash (ensures uniqueness across runs)
+    - Page/section information
+    - Chunk index
+    
+    Args:
+        document_metadata: Document metadata
+        chunk_index: Index of this chunk
+        page: Page number (for PDFs)
+        section: Section name (for DOCX)
+        
+    Returns:
+        SHA-1 hash as string
+    """
     raw = "|".join([
         str(document_metadata.get("source", "")),
         str(document_metadata.get("file_hash", "")),
@@ -403,10 +485,13 @@ def make_chunk_id(document_metadata: Dict[str, Any], chunk_index: int, page: Opt
     ])
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()
 
+# =============================================================================
+# 7) DOCUMENT BUILDER
+# =============================================================================
 
 class KBDocumentBuilder:
-    """Builds LangChain Document objects while preserving your old metadata logic."""
-
+    """Convert cleaned chunk text into LangChain Document objects."""
+    
     def build(
         self,
         *,
@@ -417,6 +502,20 @@ class KBDocumentBuilder:
         page: Optional[int] = None,
         section: str = "",
     ) -> Document:
+        """
+        Build a single LangChain Document.
+        
+        Args:
+            content: Text content of the chunk
+            document_metadata: Base metadata from the document
+            chunk_index: Index of this chunk
+            chunk_tags: Tags specific to this chunk
+            page: Page number (for PDFs)
+            section: Section name (for DOCX)
+            
+        Returns:
+            LangChain Document object
+        """
         document_tags = document_metadata.get("document_tags", []) or []
         merged_tags = sorted(set(document_tags) | set(chunk_tags))
         chunk_id = make_chunk_id(document_metadata, chunk_index, page=page, section=section)
@@ -449,15 +548,14 @@ class KBDocumentBuilder:
 
         return Document(page_content=content, metadata=safe_metadata(metadata))
 
-
 DOC_BUILDER = KBDocumentBuilder()
 
 # =============================================================================
-# 5) PDF READER
+# 8) PDF READER
 # =============================================================================
 
-
 def read_pdf(path: Path, source_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Extract cleaned text per PDF page while applying page skip rules."""
     results: List[Dict[str, Any]] = []
     rules = PDF_PAGE_OVERRIDES.get(source_name or path.name, {})
     skip_pages = set(rules.get("skip_pages", []))
@@ -472,11 +570,11 @@ def read_pdf(path: Path, source_name: Optional[str] = None) -> List[Dict[str, An
     return results
 
 # =============================================================================
-# 6) DOCX READER
+# 9) DOCX READER
 # =============================================================================
 
-
 def normalize_markdown_heading(text: str) -> str:
+    """Clean a Markdown heading extracted from Docling output."""
     text = re.sub(r"^#{1,6}\s*", "", text).strip()
     text = re.sub(r"<!\-\-.*?\-\->", "", text)
     text = text.replace("**", "")
@@ -485,8 +583,8 @@ def normalize_markdown_heading(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     return text.strip(" |\t")
 
-
 def extract_markdown_heading(line: str) -> Optional[Tuple[int, str]]:
+    """Return a Markdown heading level and text when the line is a heading."""
     match = re.match(r"^(#{1,6})\s+(.*)$", line.strip())
     if not match:
         return None
@@ -496,8 +594,8 @@ def extract_markdown_heading(line: str) -> Optional[Tuple[int, str]]:
         return None
     return level, heading
 
-
 def extract_table_section_heading(line: str) -> Optional[Tuple[int, str]]:
+    """Detect section headings that Docling emitted as Markdown table rows."""
     stripped = line.strip()
     if not (stripped.startswith("|") and stripped.endswith("|")):
         return None
@@ -523,13 +621,13 @@ def extract_table_section_heading(line: str) -> Optional[Tuple[int, str]]:
 
     return None
 
-
 def section_should_skip(heading_path: List[str], skip_patterns: set) -> bool:
+    """Check whether a heading path matches one of the configured skip rules."""
     path_text = " > ".join(heading_path).lower()
     return any(pattern in path_text for pattern in skip_patterns)
 
-
 def read_docx_proposal(path: Path, source_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Convert the DOCX to Markdown, split it into kept sections, and return text."""
     if DocumentConverter is None:
         raise ImportError("Docling is required. Install it with: pip install docling")
 
@@ -553,6 +651,7 @@ def read_docx_proposal(path: Path, source_name: Optional[str] = None) -> List[Di
     section_index = 0
 
     def flush_current_section() -> None:
+        """Save current section if it has content."""
         nonlocal section_index
         if not current_keep:
             return
@@ -610,18 +709,11 @@ def read_docx_proposal(path: Path, source_name: Optional[str] = None) -> List[Di
     return sections
 
 # =============================================================================
-# 7) PII TRACKING
+# 10) PII TRACKING (Development Only)
 # =============================================================================
 
-
 def track_pii_on_file(text: str, source: str, use_ner: bool = True):
-    """
-    Development-only text tracking.
-
-    This function does not depend on any external masking module or regex detection.
-    It only logs basic text length so you can confirm which files produced text
-    without storing the raw scope in Chroma metadata.
-    """
+    """Write a small length-only tracking log for debugging parsed text output."""
     try:
         logs_dir = ROOT_DIR / "logs"
         logs_dir.mkdir(exist_ok=True)
@@ -644,176 +736,324 @@ def track_pii_on_file(text: str, source: str, use_ner: bool = True):
         print(f"   📝 Saved tracking log: {filename}")
 
         return payload
-
     except Exception as e:
         print(f"   ⚠️  Text tracking failed: {e}")
         return None
 
-
 # =============================================================================
-# 8) PIPELINES RETURN LANGCHAIN DOCUMENTS
+# 11) PARALLEL PROCESSING PIPELINES
 # =============================================================================
 
+# -----------------------------------------------------------------------------
+# 11.1) Pipeline A: Parallel PDF Processing
+# -----------------------------------------------------------------------------
 
-def pipeline_a(oai_client: Optional[OpenAI] = None) -> List[Document]:
+def process_single_pdf(args: Tuple) -> List[Document]:
+    """Worker task: parse one PDF from ZIP bytes and return its Documents."""
+    pdf_name, meta, entry_bytes, zip_hash = args
+    
+    try:
+        # Create temporary file from ZIP bytes
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp.write(entry_bytes)
+            tmp_path = tmp.name
+        
+        try:
+            # Build document metadata
+            entry_hash = sha256_bytes(entry_bytes)
+            doc_meta = build_document_metadata(
+                source=pdf_name,
+                source_folder="Beam_WeCloud_RAG_Documents.zip",
+                doc_type=str(meta["doc_type"]),
+                content_type="company_knowledge",
+                pipeline_name=str(meta["pipeline_name"]),
+                document_tags=list(meta["document_tags"]),
+                file_hash_value=entry_hash,
+                is_proposal=False,
+                file_ext=".pdf",
+            )
+            doc_meta["container_zip_hash"] = zip_hash
+            doc_meta["zip_entry_path"] = pdf_name
+            doc_meta["sensitive_data_obfuscated"] = False
+            
+            # Extract and process PDF pages
+            pages = read_pdf(Path(tmp_path), source_name=pdf_name)
+            
+            # Build Document objects for each page
+            documents = []
+            for page_item in pages:
+                page_num = page_item["page"]
+                page_text = page_item["text"]
+                
+                # Chunk the page text
+                for local_chunk_index, piece in enumerate(CHUNKER.split(page_text)):
+                    chunk_index = (page_num * 1000) + local_chunk_index
+                    chunk_tags = auto_tag(piece, list(meta["document_tags"]))
+                    
+                    doc = DOC_BUILDER.build(
+                        content=piece,
+                        document_metadata=doc_meta,
+                        chunk_index=chunk_index,
+                        chunk_tags=chunk_tags,
+                        page=page_num,
+                        section="",
+                    )
+                    documents.append(doc)
+            
+            return documents
+            
+        finally:
+            # Clean up temporary file
+            os.unlink(tmp_path)
+            
+    except Exception as e:
+        print(f"❌ Failed to process {pdf_name}: {e}")
+        return []
+
+def pipeline_a_parallel(oai_client: Optional[OpenAI] = None) -> List[Document]:
+    """Read target company PDFs from the ZIP and process them in parallel."""
+    print("\n📄 Pipeline A: Processing PDFs in parallel")
+    
     documents: List[Document] = []
-
+    
+    # Locate the ZIP file
     company_zip = resolve_zip_path(COMPANY_ZIP, "Beam_WeCloud_RAG_Documents")
     if company_zip is None:
-        print(f"  [skip] Company ZIP not found in: {SOURCE_DATA_DIR}")
+        print(f"  ❌ ZIP not found in: {SOURCE_DATA_DIR}")
         return documents
-
+    
+    print(f"  📦 ZIP: {company_zip.name}")
     zip_hash = file_hash(company_zip)
-
+    
+    # Prepare tasks for parallel processing
+    tasks = []
     with zipfile.ZipFile(company_zip) as zf:
         for pdf_name, meta in COMPANY_PDF_FILES.items():
             entry_path = find_zip_entry(zf, pdf_name)
             if entry_path is None:
-                print(f"  [skip] Not found inside ZIP: {pdf_name}")
+                print(f"  ⚠️  Not found in ZIP: {pdf_name}")
                 continue
-
+            
             entry_bytes = zf.read(entry_path)
+            tasks.append((pdf_name, meta, entry_bytes, zip_hash))
+    
+    if not tasks:
+        print("  ⚠️  No PDF files to process")
+        return documents
+    
+    print(f"  📄 Processing {len(tasks)} PDF files in parallel on {MAX_WORKERS_CPU} cores")
+    
+    # Submit one PDF-processing task per target PDF
+    with ProcessPoolExecutor(max_workers=MAX_WORKERS_CPU) as executor:
+        # Submit all tasks
+        futures = {executor.submit(process_single_pdf, task): task[0] for task in tasks}
+        
+        # Collect results with progress bar
+        with tqdm(total=len(futures), desc="  Processing PDFs") as pbar:
+            for future in as_completed(futures):
+                pdf_name = futures[future]
+                try:
+                    result = future.result(timeout=120)  # per-file timeout
+                    documents.extend(result)
+                    pbar.set_postfix({'✅': pdf_name[:30]})
+                except Exception as e:
+                    print(f"\n  ❌ Failed {pdf_name}: {e}")
+                pbar.update(1)
+    
+    print(f"  ✅ Processed {len(documents)} documents from PDFs")
+    return documents
+
+# -----------------------------------------------------------------------------
+# 11.2) Pipeline B: Parallel DOCX Processing
+# -----------------------------------------------------------------------------
+
+def process_single_docx(args: Tuple) -> List[Document]:
+    """
+    Worker task: parse the USask DOCX proposal and return its Documents.
+
+    The DOCX file is only one file, so file-level parallelism does not help much.
+    The expensive part is LLM masking/tagging per section, so this function
+    parallelizes section processing with ThreadPoolExecutor.
+    """
+    entry, entry_bytes, zip_hash, oai_client = args
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp:
+            tmp.write(entry_bytes)
+            tmp_path = tmp.name
+
+        try:
+            fname = Path(entry.filename).name
+            folder_name = Path(entry.filename).parent.name or "Tenders"
+
+            is_usask = (
+                "usask" in folder_name.lower()
+                or "730126" in folder_name.lower()
+                or "730126" in fname.lower()
+            )
+            rfp_id = USASK_RFP_ID if is_usask else re.sub(r"[^\w]", "_", folder_name)[:50]
+
             entry_hash = sha256_bytes(entry_bytes)
 
-            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-                tmp.write(entry_bytes)
-                tmp_path = tmp.name
+            doc_meta = build_document_metadata(
+                source=fname,
+                source_folder="Tenders - Raw and Annotated.zip",
+                doc_type="proposal",
+                content_type="proposal_response",
+                pipeline_name="tender_usask_docx_proposal_pipeline",
+                document_tags=["proposal", "usask", "genai", "education", "government"],
+                file_hash_value=entry_hash,
+                rfp_id=rfp_id,
+                is_proposal=True,
+                file_ext=".docx",
+            )
 
-            try:
-                doc_meta = build_document_metadata(
-                    source=pdf_name,
-                    source_folder="Beam_WeCloud_RAG_Documents.zip",
-                    doc_type=str(meta["doc_type"]),
-                    content_type="company_knowledge",
-                    pipeline_name=str(meta["pipeline_name"]),
-                    document_tags=list(meta["document_tags"]),
-                    file_hash_value=entry_hash,
-                    is_proposal=False,
-                    file_ext=".pdf",
-                )
-                doc_meta["container_zip_hash"] = zip_hash
-                doc_meta["zip_entry_path"] = entry_path
-                doc_meta["sensitive_data_obfuscated"] = False
+            doc_meta["container_zip_hash"] = zip_hash
+            doc_meta["zip_entry_path"] = entry.filename
+            doc_meta["sensitive_data_obfuscated"] = bool(oai_client)
 
-                pages = read_pdf(Path(tmp_path), source_name=pdf_name)
-                full_text = "\n\n".join(p["text"] for p in pages)
-                track_pii_on_file(full_text, pdf_name, use_ner=True)
+            sections = read_docx_proposal(Path(tmp_path), source_name=fname)
+            full_text = "\n\n".join(s["text"] for s in sections)
+            track_pii_on_file(full_text, fname, use_ner=True)
 
-                for page_item in pages:
-                    page_num = page_item["page"]
-                    page_text = page_item["text"]
-                    
-                    masked_page_text = page_text
+            def process_section(
+                section_payload: Tuple[int, Dict[str, Any]]
+            ) -> Tuple[int, List[Document]]:
+                """
+                Process one DOCX section.
 
-                    for local_chunk_index, piece in enumerate(CHUNKER.split(masked_page_text)):
-                        chunk_index = (page_num * 1000) + local_chunk_index
-                        chunk_tags = auto_tag(piece, list(meta["document_tags"]))
-                        documents.append(DOC_BUILDER.build(
+                Steps:
+                - Optionally mask sensitive data with the LLM.
+                - Apply regex validation after masking.
+                - Generate section-level tags.
+                - Chunk the masked section text.
+                - Convert chunks into LangChain Documents.
+                """
+                section_index, section = section_payload
+                section_text = section["text"]
+
+                if oai_client:
+                    print(f"    [mask] Running LLM masking on section: {section['heading']}")
+                    llm_masked = _mask_via_llm(section_text, oai_client)
+                    masked_section_text = _regex_validate_and_fix(llm_masked)
+                    section_tags = llm_tag(
+                        masked_section_text,
+                        oai_client,
+                        base_tags=doc_meta["document_tags"],
+                    )
+                else:
+                    masked_section_text = section_text
+                    section_tags = auto_tag(
+                        masked_section_text,
+                        doc_meta["document_tags"],
+                    )
+
+                section_documents: List[Document] = []
+
+                for local_chunk_index, piece in enumerate(CHUNKER.split(masked_section_text)):
+                    chunk_index = (
+                        section.get("section_index", section_index) * 1000
+                    ) + local_chunk_index
+
+                    chunk_tags = auto_tag(piece, section_tags)
+
+                    section_documents.append(
+                        DOC_BUILDER.build(
                             content=piece,
                             document_metadata=doc_meta,
                             chunk_index=chunk_index,
                             chunk_tags=chunk_tags,
-                            page=page_num,
-                            section="",
-                        ))
-            finally:
-                os.unlink(tmp_path)
+                            page=None,
+                            section=section["heading"],
+                        )
+                    )
 
-    return documents
+                print(
+                    f"    [section] {section['heading'][:70]} "
+                    f"-> {len(section_documents)} chunk(s)"
+                )
 
+                return section_index, section_documents
 
-def pipeline_b(oai_client: Optional[OpenAI] = None) -> List[Document]:
+            documents: List[Document] = []
+            section_results: List[Tuple[int, List[Document]]] = []
+
+            if sections:
+                max_section_workers = min(DOCX_SECTION_WORKERS, len(sections))
+
+                print(
+                    f"    [parallel] Processing {len(sections)} DOCX sections "
+                    f"with {max_section_workers} threads"
+                )
+
+                with ThreadPoolExecutor(max_workers=max_section_workers) as executor:
+                    futures = [
+                        executor.submit(process_section, (section_index, section))
+                        for section_index, section in enumerate(sections)
+                    ]
+
+                    for future in as_completed(futures):
+                        section_results.append(future.result())
+
+                # Restore deterministic section order after parallel execution.
+                for _, section_docs in sorted(section_results, key=lambda item: item[0]):
+                    documents.extend(section_docs)
+
+            print(f"  ✅ DOCX chunks generated: {len(documents)}")
+            return documents
+
+        finally:
+            os.unlink(tmp_path)
+
+    except Exception as e:
+        print(f"❌ Failed to process DOCX {entry.filename}: {e}")
+        return []
+
+def pipeline_b_parallel(oai_client: Optional[OpenAI] = None) -> List[Document]:
+    """Read the target DOCX proposal from the ZIP and convert it into Documents."""
+    print("\n📝 Pipeline B: Processing DOCX in parallel")
+    
     documents: List[Document] = []
-
+    
+    # Locate the ZIP file
     tenders_zip = resolve_zip_path(TENDERS_ZIP, "Tenders - Raw and Annotated")
     if tenders_zip is None:
-        print(f"  [skip] Tenders ZIP not found in: {SOURCE_DATA_DIR}")
+        print(f"  ❌ ZIP not found in: {SOURCE_DATA_DIR}")
         return documents
-
+    
+    print(f"  📦 ZIP: {tenders_zip.name}")
     zip_hash = file_hash(tenders_zip)
-
+    
+    # Find DOCX files in ZIP
+    docx_tasks = []
     with zipfile.ZipFile(tenders_zip) as zf:
         for entry in zf.infolist():
             if entry.is_dir():
                 continue
-
             fname = Path(entry.filename).name
             ext = Path(fname).suffix.lower()
-            folder_name = Path(entry.filename).parent.name or "Tenders"
-
             if ext == ".docx" and "copy of cp-730126" in fname.lower():
                 entry_bytes = zf.read(entry.filename)
-                entry_hash = sha256_bytes(entry_bytes)
-
-                is_usask = "usask" in folder_name.lower() or "730126" in folder_name.lower() or "730126" in fname.lower()
-                rfp_id = USASK_RFP_ID if is_usask else re.sub(r"[^\w]", "_", folder_name)[:50]
-
-                
-
-                with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp:
-                    tmp.write(entry_bytes)
-                    tmp_path = tmp.name
-
-                try:
-                    doc_meta = build_document_metadata(
-                        source=fname,
-                        source_folder="Tenders - Raw and Annotated.zip",
-                        doc_type="proposal",
-                        content_type="proposal_response",
-                        pipeline_name="tender_usask_docx_proposal_pipeline",
-                        document_tags=["proposal", "usask", "genai", "education", "government"],
-                        file_hash_value=entry_hash,
-                        rfp_id=rfp_id,
-                        is_proposal=True,
-                        file_ext=ext,
-                    )
-                    doc_meta["container_zip_hash"] = zip_hash
-                    doc_meta["zip_entry_path"] = entry.filename
-                    doc_meta["sensitive_data_obfuscated"] = bool(oai_client)
-
-                    sections = read_docx_proposal(Path(tmp_path), source_name=fname)
-                    full_text = "\n\n".join( s["text"] for s in sections)
-                    track_pii_on_file(full_text, fname, use_ner=True)
-
-                    for section_index, section in enumerate(sections):
-                        section_text = section["text"]
-
-                        if oai_client:
-                            print(f"    [mask] Running LLM masking on section: {section['heading']}")
-
-                            llm_masked = _mask_via_llm(
-                                section_text,
-                                oai_client
-                            )
-
-                            masked_section_text = _regex_validate_and_fix(
-                                llm_masked
-                            )
-                        else:
-                            masked_section_text = section_text
-
-                        # 2. Tagging on the final text.
-                        if oai_client:
-                            section_tags = llm_tag(masked_section_text, oai_client, base_tags=doc_meta["document_tags"])
-                        else:
-                            section_tags = auto_tag(masked_section_text, doc_meta["document_tags"])
-
-                        for local_chunk_index, piece in enumerate(CHUNKER.split(masked_section_text)):
-                            chunk_index = (section.get("section_index", section_index) * 1000) + local_chunk_index
-                            chunk_tags = auto_tag(piece, section_tags)
-                            documents.append(DOC_BUILDER.build(
-                                content=piece,
-                                document_metadata=doc_meta,
-                                chunk_index=chunk_index,
-                                chunk_tags=chunk_tags,
-                                page=None,
-                                section=section["heading"],
-                            ))
-                finally:
-                    os.unlink(tmp_path)
-
+                docx_tasks.append((entry, entry_bytes, zip_hash, oai_client))
+    
+    if not docx_tasks:
+        print("  ⚠️  No DOCX files to process")
+        return documents
+    
+    print(f"  📄 Found {len(docx_tasks)} DOCX file(s)")
+    
+    # Process each DOCX file
+    for task in docx_tasks:
+        result = process_single_docx(task)
+        documents.extend(result)
+        print(f"  ✅ Processed: {Path(task[0].filename).name}")
+    
     return documents
-# Pipeline C 
+
+# -----------------------------------------------------------------------------
+# 11.3) Pipeline C: Parallel Excel Scope Processing
+# -----------------------------------------------------------------------------
+
 SCOPE_HEADER_KEYWORDS = [
     "scope of services",
     "scope of service",
@@ -833,39 +1073,33 @@ SECTION_STOP_KEYWORDS = [
     "references",
 ]
 
-
 def normalize_excel_text(text: Any) -> str:
+    """Normalize Excel cell text for matching headers and stop words."""
     return re.sub(r"\s+", " ", str(text or "").strip().lower())
 
-
 def clean_scope_cell_text(text: Any) -> str:
+    """Clean a candidate Excel scope cell before capability extraction."""
     if text is None:
         return ""
-
     cleaned = str(text).strip()
-
     if "|" in cleaned:
         cleaned = cleaned.split("|")[0].strip()
-
     cleaned = re.sub(r"[ \t]+", " ", cleaned)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
-
     return cleaned.strip()
 
-
 def find_scope_header(ws) -> Tuple[Optional[int], Optional[int], Optional[str]]:
+    """Find the worksheet cell that marks the start of a scope section."""
     for row in range(1, ws.max_row + 1):
         for col in range(1, min(ws.max_column, 6) + 1):
             value = ws.cell(row=row, column=col).value
             text = normalize_excel_text(value)
-
             if any(k in text for k in SCOPE_HEADER_KEYWORDS):
                 return row, col, str(value)
-
     return None, None, None
 
-
 def extract_scope_openpyxl(path: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
+    """Extract the scope block and extraction metadata from one Excel workbook."""
     wb = openpyxl.load_workbook(path, data_only=True)
 
     for ws in wb.worksheets:
@@ -905,8 +1139,8 @@ def extract_scope_openpyxl(path: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
 
     return "", None
 
-
 def build_scope_capability_prompt(scope_text: str) -> str:
+    """Create the LLM prompt that turns tender scope text into capability JSON."""
     return f"""
 You are preparing clean structured data for a Beam Data RAG knowledge base.
 
@@ -975,9 +1209,8 @@ Scope text:
 {scope_text}
 """
 
-
 def parse_llm_json(text: str) -> Dict[str, Any]:
-    """Parse JSON returned by the LLM, even if it wraps the JSON in markdown."""
+    """Parse JSON from an LLM response, including markdown-wrapped JSON."""
     text = text.strip()
     text = re.sub(r"^```json\s*", "", text, flags=re.IGNORECASE)
     text = re.sub(r"^```\s*", "", text)
@@ -991,22 +1224,82 @@ def parse_llm_json(text: str) -> Dict[str, Any]:
             raise
         return json.loads(match.group(0))
 
-
 def extract_capabilities_with_llm(scope_text: str, client: OpenAI) -> Dict[str, Any]:
+    """Call the LLM and return parsed capability extraction JSON."""
     prompt = build_scope_capability_prompt(scope_text)
-
     resp = client.responses.create(
         model=config.LLM_MODEL,
         input=prompt,
     )
-
     return parse_llm_json(resp.output_text)
 
+def process_single_excel(args: Tuple) -> Optional[Dict[str, Any]]:
+    """Worker task: extract one Excel scope and call the LLM for capabilities."""
+    entry, entry_bytes, zip_hash, oai_client, tender_files = args
+    
+    fname = Path(entry.filename).name
+    file_stem = normalize_file_stem(fname)
+    
+    # Check if this file is targeted
+    if file_stem not in tender_files:
+        return None
+    
+    print(f"\n  [excel] Processing: {entry.filename}")
+    
+    try:
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+            tmp.write(entry_bytes)
+            tmp_path = tmp.name
+        
+        try:
+            # Extract scope text
+            scope_text, extraction_info = extract_scope_openpyxl(Path(tmp_path))
+            
+            if not scope_text.strip():
+                print(f"  [skip] No scope found: {fname}")
+                return None
+            
+            # Extract capabilities using LLM
+            result = extract_capabilities_with_llm(scope_text, oai_client)
+            
+            capability_text = result.get("capability_text", "").strip()
+            result_meta = result.get("metadata", {}) or {}
+            capabilities = result_meta.get("capabilities", []) or []
+            industry = result_meta.get("industry", "") or ""
+            
+            if not capability_text:
+                print(f"  [skip] Empty capability_text: {fname}")
+                return None
+            
+            # Track progress
+            track_pii_on_file(capability_text, fname, use_ner=True)
+            
+            return {
+                "fname": fname,
+                "entry": entry,
+                "entry_bytes": entry_bytes,
+                "zip_hash": zip_hash,
+                "scope_text": scope_text,
+                "capability_text": capability_text,
+                "capabilities": capabilities,
+                "industry": industry,
+                "result_meta": result_meta,
+                "extraction_info": extraction_info,
+                "entry_hash": sha256_bytes(entry_bytes),
+            }
+            
+        finally:
+            os.unlink(tmp_path)
+            
+    except Exception as e:
+        print(f"  [error] Excel pipeline failed for {fname}: {e}")
+        return None
 
 def pipeline_c_excel_scopes(oai_client: Optional[OpenAI] = None) -> List[Document]:
-    """Extract Excel tender scopes and store LLM-generated capability summaries as RAG documents."""
+    """Process target Excel scopes in parallel and convert capability outputs to Documents."""
     documents: List[Document] = []
-
+    
     target_count = len(TENDER_EXCEL_TARGET_FILES)
     matched_files: List[str] = []
     processed_files: List[str] = []
@@ -1017,148 +1310,125 @@ def pipeline_c_excel_scopes(oai_client: Optional[OpenAI] = None) -> List[Documen
         print("  [skip] Excel capability pipeline requires OpenAI client")
         return documents
 
+    print("\n📊 Pipeline C: Processing Excel files in parallel")
+    
+    # Locate the ZIP file
     tenders_zip = resolve_zip_path(TENDERS_ZIP, "Tenders - Raw and Annotated")
     if tenders_zip is None:
         print(f"  [skip] Tenders ZIP not found in: {SOURCE_DATA_DIR}")
         return documents
 
+    print(f"  📦 ZIP: {tenders_zip.name}")
     zip_hash = file_hash(tenders_zip)
-
+    
+    # Collect Excel files for parallel processing
+    excel_tasks = []
     with zipfile.ZipFile(tenders_zip) as zf:
         for entry in zf.infolist():
             if entry.is_dir():
                 continue
-
             fname = Path(entry.filename).name.strip()
             ext = Path(fname).suffix.lower()
-
+            
             if ext != ".xlsx":
                 continue
-
+            
             file_stem = normalize_file_stem(fname)
-            if file_stem not in TENDER_EXCEL_TARGET_FILES:
-                continue
-
-            matched_files.append(fname)
-            print(f"\n  [excel] Processing: {entry.filename}")
-
-            entry_bytes = zf.read(entry.filename)
-            entry_hash = sha256_bytes(entry_bytes)
-
-            with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
-                tmp.write(entry_bytes)
-                tmp_path = tmp.name
-
-            try:
-                scope_text, extraction_info = extract_scope_openpyxl(Path(tmp_path))
-
-                if not scope_text.strip():
-                    print(f"  [skip] No scope found: {fname}")
-                    skipped_files.append(f"{fname} — no scope found")
-                    continue
-
-                result = extract_capabilities_with_llm(scope_text, oai_client)
-
-                capability_text = result.get("capability_text", "").strip()
-                result_meta = result.get("metadata", {}) or {}
-                capabilities = result_meta.get("capabilities", []) or []
-                industry = result_meta.get("industry", "") or ""
-
-                if not capability_text:
-                    print(f"  [skip] Empty capability_text: {fname}")
-                    skipped_files.append(f"{fname} — empty capability_text")
-                    continue
-
-                # Development visibility: track the generated capability text length.
-                track_pii_on_file(capability_text, fname, use_ner=True)
-
-                # Excel output is stored as returned by the capability-extraction prompt.
-                # No masking utility and no regex cleanup are applied to Excel capability text.
-                masked_text = capability_text
-
-                base_tags = [
-                    "tender",
-                    "tender-scope",
-                    "capabilities",
-                    "beamdata",
-                ]
-
-                if industry:
-                    industry_tag = slugify_tag(industry)
-                    if industry_tag:
-                        base_tags.append(industry_tag)
-
-                for cap in capabilities:
-                    cap_tag = slugify_tag(cap)
-                    if cap_tag and len(cap_tag) <= 50:
-                        base_tags.append(cap_tag)
-
-                base_tags = sorted(set(base_tags))
-
-                doc_meta = build_document_metadata(
-                    source=fname,
-                    source_folder="Tenders - Raw and Annotated.zip",
-                    doc_type="tender_scope_capabilities",
-                    content_type="capability_summary",
-                    pipeline_name="tender_excel_scope_capabilities_pipeline",
-                    document_tags=base_tags,
-                    file_hash_value=entry_hash,
-                    rfp_id=re.sub(r"[^\w]+", "_", Path(entry.filename).parent.name)[:80],
-                    is_proposal=False,
-                    file_ext=".xlsx",
-                )
-
-                doc_meta["container_zip_hash"] = zip_hash
-                doc_meta["zip_entry_path"] = entry.filename
-                doc_meta["sensitive_data_obfuscated"] = False
-                doc_meta["industry"] = industry
-                doc_meta["capabilities"] = capabilities
-                doc_meta["capabilities_text"] = ", ".join(map(str, capabilities))
-                doc_meta["source_type"] = result_meta.get("source_type", "tender_scope_capabilities")
-                doc_meta["evidence_type"] = result_meta.get("evidence_type", "inferred_from_tender_scope")
-                doc_meta["confidence"] = result_meta.get("confidence", "medium")
-                doc_meta["scope_length_chars"] = len(scope_text)
-                doc_meta["capability_text_length_chars"] = len(capability_text)
-
-                if extraction_info:
-                    doc_meta["scope_sheet"] = extraction_info.get("sheet", "")
-                    doc_meta["scope_cell"] = extraction_info.get("scope_cell_address", "")
-                    doc_meta["scope_header_value"] = extraction_info.get("scope_header_value", "")
-                    doc_meta["scope_header_row"] = extraction_info.get("scope_header_row", "")
-                    doc_meta["scope_header_col"] = extraction_info.get("scope_header_col", "")
-
-                chunk_tags = auto_tag(masked_text, base_tags)
-                for cap in capabilities:
-                    cap_tag = slugify_tag(cap)
-                    if cap_tag and cap_tag not in chunk_tags and len(cap_tag) <= 50:
-                        chunk_tags.append(cap_tag)
-                chunk_tags = sorted(set(chunk_tags))
-
-                file_doc_count_before = len(documents)
-
-                for local_chunk_index, piece in enumerate(CHUNKER.split(masked_text)):
-                    documents.append(DOC_BUILDER.build(
-                        content=piece,
-                        document_metadata=doc_meta,
-                        chunk_index=local_chunk_index,
-                        chunk_tags=auto_tag(piece, chunk_tags),
-                        page=None,
-                        section="Tender Scope Capabilities",
-                    ))
-
-                file_doc_count = len(documents) - file_doc_count_before
-                processed_files.append(fname)
-                print(f"  [excel] Generated {file_doc_count} capability document(s) from: {fname}")
-
-            except Exception as e:
-                print(f"  [error] Excel pipeline failed for {fname}: {e}")
-                error_files.append(f"{fname} — {e}")
-
-            finally:
-                os.unlink(tmp_path)
-
+            if file_stem in TENDER_EXCEL_TARGET_FILES:
+                entry_bytes = zf.read(entry.filename)
+                excel_tasks.append((entry, entry_bytes, zip_hash, oai_client, TENDER_EXCEL_TARGET_FILES))
+                matched_files.append(fname)
+    
+    if not excel_tasks:
+        print("  ⚠️  No Excel files to process")
+        return documents
+    
+    print(f"  📊 Processing {len(excel_tasks)} Excel files in parallel with {MAX_WORKERS_IO} threads")
+    
+    # Submit one Excel-processing task per target workbook
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS_IO) as executor:
+        # Submit all tasks
+        futures = {executor.submit(process_single_excel, task): task for task in excel_tasks}
+        
+        # Collect results with progress bar
+        with tqdm(total=len(futures), desc="  Processing Excel files") as pbar:
+            for future in as_completed(futures):
+                task = futures[future]
+                fname = Path(task[0].filename).name
+                
+                try:
+                    result = future.result(timeout=120)
+                    
+                    if result:
+                        # Build documents from the result
+                        doc_meta = build_document_metadata(
+                            source=result["fname"],
+                            source_folder="Tenders - Raw and Annotated.zip",
+                            doc_type="tender_scope_capabilities",
+                            content_type="capability_summary",
+                            pipeline_name="tender_excel_scope_capabilities_pipeline",
+                            document_tags=["tender", "tender-scope", "capabilities", "beamdata"],
+                            file_hash_value=result["entry_hash"],
+                            rfp_id=re.sub(r"[^\w]+", "_", Path(result["entry"].filename).parent.name)[:80],
+                            is_proposal=False,
+                            file_ext=".xlsx",
+                        )
+                        
+                        # Add metadata
+                        doc_meta["container_zip_hash"] = result["zip_hash"]
+                        doc_meta["zip_entry_path"] = result["entry"].filename
+                        doc_meta["sensitive_data_obfuscated"] = False
+                        doc_meta["industry"] = result["industry"]
+                        doc_meta["capabilities"] = result["capabilities"]
+                        doc_meta["capabilities_text"] = ", ".join(map(str, result["capabilities"]))
+                        doc_meta["source_type"] = result["result_meta"].get("source_type", "tender_scope_capabilities")
+                        doc_meta["evidence_type"] = result["result_meta"].get("evidence_type", "inferred_from_tender_scope")
+                        doc_meta["confidence"] = result["result_meta"].get("confidence", "medium")
+                        doc_meta["scope_length_chars"] = len(result["scope_text"])
+                        doc_meta["capability_text_length_chars"] = len(result["capability_text"])
+                        
+                        if result["extraction_info"]:
+                            doc_meta["scope_sheet"] = result["extraction_info"].get("sheet", "")
+                            doc_meta["scope_cell"] = result["extraction_info"].get("scope_cell_address", "")
+                        
+                        # Build tags
+                        base_tags = ["tender", "tender-scope", "capabilities", "beamdata"]
+                        if result["industry"]:
+                            industry_tag = slugify_tag(result["industry"])
+                            if industry_tag:
+                                base_tags.append(industry_tag)
+                        
+                        for cap in result["capabilities"]:
+                            cap_tag = slugify_tag(cap)
+                            if cap_tag and len(cap_tag) <= 50:
+                                base_tags.append(cap_tag)
+                        
+                        base_tags = sorted(set(base_tags))
+                        chunk_tags = auto_tag(result["capability_text"], base_tags)
+                        
+                        # Chunk and build documents
+                        for local_chunk_index, piece in enumerate(CHUNKER.split(result["capability_text"])):
+                            documents.append(DOC_BUILDER.build(
+                                content=piece,
+                                document_metadata=doc_meta,
+                                chunk_index=local_chunk_index,
+                                chunk_tags=auto_tag(piece, chunk_tags),
+                                page=None,
+                                section="Tender Scope Capabilities",
+                            ))
+                        
+                        processed_files.append(result["fname"])
+                        pbar.set_postfix({'✅': result["fname"][:20]})
+                    
+                except Exception as e:
+                    print(f"\n  [error] Excel pipeline failed for {fname}: {e}")
+                    error_files.append(f"{fname} — {e}")
+                
+                pbar.update(1)
+    
+    # Summary report
     unmatched_targets = sorted(TENDER_EXCEL_TARGET_FILES - {normalize_file_stem(f) for f in matched_files})
-
+    
     print("\n" + "=" * 80)
     print("EXCEL PIPELINE SUMMARY")
     print("=" * 80)
@@ -1168,37 +1438,37 @@ def pipeline_c_excel_scopes(oai_client: Optional[OpenAI] = None) -> List[Documen
     print(f"Skipped after matching   : {len(skipped_files)}")
     print(f"Errors                   : {len(error_files)}")
     print(f"Documents generated      : {len(documents)}")
-
+    
     if processed_files:
         print("\nProcessed files:")
         for name in processed_files:
             print(f"  - {name}")
-
+    
     if skipped_files:
         print("\nSkipped files:")
         for name in skipped_files:
             print(f"  - {name}")
-
+    
     if error_files:
         print("\nFiles with errors:")
         for name in error_files:
             print(f"  - {name}")
-
+    
     if unmatched_targets:
         print("\nTarget files not found in ZIP:")
         for name in unmatched_targets:
             print(f"  - {name}")
-
+    
     print("=" * 80)
-
+    
     return documents
 
 # =============================================================================
-# 9) SAVE / INDEX
+# 12) SAVE / INDEX
 # =============================================================================
 
-
 def dedupe_documents(documents: List[Document]) -> List[Document]:
+    """Remove exact duplicate chunks after normalizing whitespace and case."""
     seen = set()
     deduped: List[Document] = []
     for doc in documents:
@@ -1211,16 +1481,16 @@ def dedupe_documents(documents: List[Document]) -> List[Document]:
         print(f"\n  Deduplication: removed {removed} duplicate chunks")
     return deduped
 
-
 def save_documents_json(documents: List[Document]) -> None:
+    """Write page_content and metadata for all Documents to kb_documents.json."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     payload = [{"page_content": d.page_content, "metadata": d.metadata} for d in documents]
     with open(DOCS_JSON, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     print(f"Saved documents JSON -> {DOCS_JSON}")
 
-
 def print_stats(documents: List[Document]) -> None:
+    """Print document counts by type and the most common tags."""
     print(f"\nTotal LangChain Documents: {len(documents)}")
 
     by_type: Dict[str, int] = {}
@@ -1243,29 +1513,85 @@ def print_stats(documents: List[Document]) -> None:
     print("  " + ", ".join(f"{tag}({count})" for tag, count in top_tags))
 
 
+
+
+def print_file_chunk_report(documents: List[Document]) -> None:
+    """
+    Print chunk counts per source file.
+
+    This is used to compare sequential vs parallel builds and confirm that
+    both versions generate the same number of chunks per file and doc_type.
+    """
+
+    print("\nChunks by source file:")
+    print("-" * 100)
+    print(f"{'Source':<65} {'Doc Type':<28} {'Chunks':>6}")
+    print("-" * 100)
+
+    counts: Dict[Tuple[str, str], int] = {}
+
+    for doc in documents:
+        source = str(doc.metadata.get("source", "unknown"))
+        doc_type = str(doc.metadata.get("doc_type", "unknown"))
+        key = (source, doc_type)
+        counts[key] = counts.get(key, 0) + 1
+
+    for (source, doc_type), count in sorted(counts.items(), key=lambda item: (item[0][1], item[0][0])):
+        print(f"{source[:65]:<65} {doc_type[:28]:<28} {count:>6}")
+
+    print("-" * 100)
+
+
+def print_docx_section_chunk_report(documents: List[Document]) -> None:
+    """
+    Print chunk counts per DOCX section.
+
+    Helpful for debugging whether parallel section processing changed the
+    number of generated chunks for any section.
+    """
+
+    section_counts: Dict[str, int] = {}
+
+    for doc in documents:
+        if doc.metadata.get("doc_type") != "proposal":
+            continue
+
+        section = str(doc.metadata.get("section", ""))
+        section_counts[section] = section_counts.get(section, 0) + 1
+
+    if not section_counts:
+        return
+
+    print("\nDOCX proposal chunks by section:")
+    print("-" * 100)
+    print(f"{'Section':<90} {'Chunks':>6}")
+    print("-" * 100)
+
+    for section, count in sorted(section_counts.items()):
+        print(f"{section[:90]:<90} {count:>6}")
+
+    print("-" * 100)
+
+
 def format_seconds(seconds: float) -> str:
-    """Format elapsed seconds for readable build logs."""
+    """Format elapsed seconds for build logs."""
     if seconds < 60:
-        return f"{seconds:.2f}s"
-
-    minutes, remaining_seconds = divmod(seconds, 60)
-    if minutes < 60:
-        return f"{int(minutes)}m {remaining_seconds:.2f}s"
-
-    hours, remaining_minutes = divmod(minutes, 60)
-    return f"{int(hours)}h {int(remaining_minutes)}m {remaining_seconds:.2f}s"
-
+        return f"{seconds:.2f} sec"
+    minutes, sec = divmod(seconds, 60)
+    return f"{int(minutes)} min {sec:.2f} sec"
 
 # =============================================================================
-# 10) MAIN
+# 13) MAIN
 # =============================================================================
-
 
 def main() -> None:
-    total_start_time = time.time()
-    stage_timings: Dict[str, float] = {}
+    """Run the full KB build, print timing metrics, and optionally build Chroma."""
+    total_start = time.perf_counter()
+    timing: Dict[str, float] = {}
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Build LangChain Knowledge Base with parallel processing"
+    )
 
     parser.add_argument(
         "--reset",
@@ -1284,68 +1610,70 @@ def main() -> None:
     print("=" * 70)
     print(f"  Building LangChain Knowledge Base — {SCRIPT_VERSION}")
     print("=" * 70)
+    print(f"  ⚡ Parallel Processing Enabled (CPU: {CPU_CORES} cores)")
 
+    # Initialize OpenAI client
     oai_client = None
-
     if config.OPENAI_API_KEY:
         oai_client = OpenAI(api_key=config.OPENAI_API_KEY)
-        print("  LLM tagging: ENABLED")
+        print("  🤖 LLM tagging: ENABLED")
+        print("  🔒 LLM masking: ENABLED")
     else:
-        print("  LLM tagging: DISABLED — keyword tags only")
+        print("  🤖 LLM tagging: DISABLED — keyword tags only")
+        print("  🔒 LLM masking: DISABLED")
 
-    print("\n[1/3] Pipeline A — Company PDFs")
-    stage_start = time.time()
-    docs_a = pipeline_a(oai_client)
-    stage_timings["Pipeline A — Company PDFs"] = time.time() - stage_start
-    print(f"      {len(docs_a)} documents")
-    print(
-        "      Time: "
-        f"{format_seconds(stage_timings['Pipeline A — Company PDFs'])}"
-    )
+    print("\n" + "=" * 70)
+    print("  STARTING PARALLEL PROCESSING PIPELINES")
+    print("=" * 70)
 
+    # Pipeline A: company PDFs
+    print("\n[1/3] Pipeline A — Company PDFs (Parallel)")
+    step_start = time.perf_counter()
+    docs_a = pipeline_a_parallel(oai_client)
+    timing["Pipeline A - PDFs"] = time.perf_counter() - step_start
+    print(f"      ✅ {len(docs_a)} documents generated")
+    print(f"      ⏱ Time: {format_seconds(timing['Pipeline A - PDFs'])}")
+
+    # Pipeline B: USask DOCX proposal
     print("\n[2/3] Pipeline B — USask DOCX Proposal")
-    stage_start = time.time()
-    docs_b = pipeline_b(oai_client)
-    stage_timings["Pipeline B — USask DOCX Proposal"] = time.time() - stage_start
-    print(f"      {len(docs_b)} documents")
-    print(
-        "      Time: "
-        f"{format_seconds(stage_timings['Pipeline B — USask DOCX Proposal'])}"
-    )
+    step_start = time.perf_counter()
+    docs_b = pipeline_b_parallel(oai_client)
+    timing["Pipeline B - DOCX"] = time.perf_counter() - step_start
+    print(f"      ✅ {len(docs_b)} documents generated")
+    print(f"      ⏱ Time: {format_seconds(timing['Pipeline B - DOCX'])}")
 
-    print("\n[3/3] Pipeline C — Excel Tender Scope Capabilities")
-    stage_start = time.time()
+    # Pipeline C: Excel tender scope capability summaries
+    print("\n[3/3] Pipeline C — Excel Tender Scope Capabilities (Parallel)")
+    step_start = time.perf_counter()
     docs_c = pipeline_c_excel_scopes(oai_client)
-    stage_timings["Pipeline C — Excel Tender Scope Capabilities"] = time.time() - stage_start
-    print(f"      {len(docs_c)} documents")
-    print(
-        "      Time: "
-        f"{format_seconds(stage_timings['Pipeline C — Excel Tender Scope Capabilities'])}"
-    )
+    timing["Pipeline C - Excel"] = time.perf_counter() - step_start
+    print(f"      ✅ {len(docs_c)} documents generated")
+    print(f"      ⏱ Time: {format_seconds(timing['Pipeline C - Excel'])}")
 
-    print("\nDeduplicating documents...")
-    stage_start = time.time()
-    documents = dedupe_documents(docs_a + docs_b + docs_c)
-    stage_timings["Deduplication"] = time.time() - stage_start
-    print(f"      Time: {format_seconds(stage_timings['Deduplication'])}")
+    # Combine outputs and remove duplicate chunks
+    all_docs = docs_a + docs_b + docs_c
+    print(f"\n📊 Total documents before deduplication: {len(all_docs)}")
+    step_start = time.perf_counter()
+    documents = dedupe_documents(all_docs)
+    timing["Deduplication"] = time.perf_counter() - step_start
 
-    proposals = sum(
-        1 for d in docs_b if d.metadata.get("is_proposal") is True
-    )
-    print(f"      {proposals} proposal documents")
+    # Statistics
+    proposals = sum(1 for d in docs_b if d.metadata.get("is_proposal") is True)
+    print(f"      📝 {proposals} proposal documents")
 
     print_stats(documents)
+    print_file_chunk_report(documents)
+    print_docx_section_chunk_report(documents)
 
-    print("\nSaving documents JSON...")
-    stage_start = time.time()
+    # Save the intermediate JSON used by evaluation and debugging
+    step_start = time.perf_counter()
     save_documents_json(documents)
-    stage_timings["Save documents JSON"] = time.time() - stage_start
-    print(f"      Time: {format_seconds(stage_timings['Save documents JSON'])}")
+    timing["Save JSON"] = time.perf_counter() - step_start
 
+    # Build or refresh the Chroma vector index unless --no-index is provided
     if not args.no_index:
-
-        print("\nBuilding Chroma index with LangChain...")
-        stage_start = time.time()
+        print("\n🔍 Building Chroma index with LangChain...")
+        step_start = time.perf_counter()
 
         store = ChromaVectorStore(
             persist_dir=config.CHROMA_DIR,
@@ -1358,31 +1686,29 @@ def main() -> None:
             reset=args.reset,
         )
 
-        stage_timings["Chroma indexing"] = time.time() - stage_start
-
-        print(f"Chroma ready -> {config.CHROMA_DIR}")
-        print(f"Collection: {config.COLLECTION_NAME}")
-        print(f"Count: {vectorstore._collection.count()}")
-        print(f"Indexing time: {format_seconds(stage_timings['Chroma indexing'])}")
-    else:
-        stage_timings["Chroma indexing"] = 0.0
-
-    total_elapsed = time.time() - total_start_time
+        timing["Chroma Indexing"] = time.perf_counter() - step_start
+        print(f"✅ Chroma ready -> {config.CHROMA_DIR}")
+        print(f"   Collection: {config.COLLECTION_NAME}")
+        print(f"   Vector count: {vectorstore._collection.count()}")
+        print(f"   ⏱ Time: {format_seconds(timing['Chroma Indexing'])}")
 
     print("\n" + "=" * 70)
-    print("BUILD TIME SUMMARY")
+    print("  ✅ BUILD COMPLETE")
     print("=" * 70)
-    for stage_name, elapsed in stage_timings.items():
-        print(f"{stage_name:<45} {format_seconds(elapsed)}")
-    print("-" * 70)
-    print(f"{'Total build time':<45} {format_seconds(total_elapsed)}")
-    print("=" * 70)
-
-    print("\nDone.")
     print(
-        "Next: run the API with: "
+        "🚀 Next: Run the API with: "
         "uvicorn src.api_langchain:app --reload"
     )
+    total_time = time.perf_counter() - total_start
+
+    print("\nPerformance Summary:")
+    print(f"  - Processed {len(documents)} documents")
+    print(f"  - Total build time: {format_seconds(total_time)}")
+    for step_name, elapsed in timing.items():
+        print(f"  - {step_name}: {format_seconds(elapsed)}")
+    print(f"  - Used {CPU_CORES} CPU cores for PDF process workers")
+    print(f"  - Used {MAX_WORKERS_IO} threads for Excel/LLM workers")
+    print(f"  - Used {DOCX_SECTION_WORKERS} threads for DOCX section workers")
 
 if __name__ == "__main__":
     main()
