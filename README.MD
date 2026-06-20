@@ -169,8 +169,9 @@ _source_data/
 Current folders:
 
 ```text
-Beam_WeCloud_RAG_Documents
-Tenders - Raw and Annotated
+Confidential proposal documents
+Past project documents
+Tender documents
 ```
 
 ---
