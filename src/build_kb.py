@@ -27,6 +27,7 @@ import json
 import os
 import re
 import tempfile
+import time
 import zipfile
 from datetime import datetime, timezone
 from html import unescape
@@ -1242,12 +1243,28 @@ def print_stats(documents: List[Document]) -> None:
     print("  " + ", ".join(f"{tag}({count})" for tag, count in top_tags))
 
 
+def format_seconds(seconds: float) -> str:
+    """Format elapsed seconds for readable build logs."""
+    if seconds < 60:
+        return f"{seconds:.2f}s"
+
+    minutes, remaining_seconds = divmod(seconds, 60)
+    if minutes < 60:
+        return f"{int(minutes)}m {remaining_seconds:.2f}s"
+
+    hours, remaining_minutes = divmod(minutes, 60)
+    return f"{int(hours)}h {int(remaining_minutes)}m {remaining_seconds:.2f}s"
+
+
 # =============================================================================
 # 10) MAIN
 # =============================================================================
 
 
 def main() -> None:
+    total_start_time = time.time()
+    stage_timings: Dict[str, float] = {}
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -1277,18 +1294,40 @@ def main() -> None:
         print("  LLM tagging: DISABLED — keyword tags only")
 
     print("\n[1/3] Pipeline A — Company PDFs")
+    stage_start = time.time()
     docs_a = pipeline_a(oai_client)
+    stage_timings["Pipeline A — Company PDFs"] = time.time() - stage_start
     print(f"      {len(docs_a)} documents")
+    print(
+        "      Time: "
+        f"{format_seconds(stage_timings['Pipeline A — Company PDFs'])}"
+    )
 
     print("\n[2/3] Pipeline B — USask DOCX Proposal")
+    stage_start = time.time()
     docs_b = pipeline_b(oai_client)
+    stage_timings["Pipeline B — USask DOCX Proposal"] = time.time() - stage_start
     print(f"      {len(docs_b)} documents")
+    print(
+        "      Time: "
+        f"{format_seconds(stage_timings['Pipeline B — USask DOCX Proposal'])}"
+    )
 
     print("\n[3/3] Pipeline C — Excel Tender Scope Capabilities")
+    stage_start = time.time()
     docs_c = pipeline_c_excel_scopes(oai_client)
+    stage_timings["Pipeline C — Excel Tender Scope Capabilities"] = time.time() - stage_start
     print(f"      {len(docs_c)} documents")
+    print(
+        "      Time: "
+        f"{format_seconds(stage_timings['Pipeline C — Excel Tender Scope Capabilities'])}"
+    )
 
+    print("\nDeduplicating documents...")
+    stage_start = time.time()
     documents = dedupe_documents(docs_a + docs_b + docs_c)
+    stage_timings["Deduplication"] = time.time() - stage_start
+    print(f"      Time: {format_seconds(stage_timings['Deduplication'])}")
 
     proposals = sum(
         1 for d in docs_b if d.metadata.get("is_proposal") is True
@@ -1297,11 +1336,16 @@ def main() -> None:
 
     print_stats(documents)
 
+    print("\nSaving documents JSON...")
+    stage_start = time.time()
     save_documents_json(documents)
+    stage_timings["Save documents JSON"] = time.time() - stage_start
+    print(f"      Time: {format_seconds(stage_timings['Save documents JSON'])}")
 
     if not args.no_index:
 
         print("\nBuilding Chroma index with LangChain...")
+        stage_start = time.time()
 
         store = ChromaVectorStore(
             persist_dir=config.CHROMA_DIR,
@@ -1314,16 +1358,31 @@ def main() -> None:
             reset=args.reset,
         )
 
+        stage_timings["Chroma indexing"] = time.time() - stage_start
+
         print(f"Chroma ready -> {config.CHROMA_DIR}")
         print(f"Collection: {config.COLLECTION_NAME}")
         print(f"Count: {vectorstore._collection.count()}")
+        print(f"Indexing time: {format_seconds(stage_timings['Chroma indexing'])}")
+    else:
+        stage_timings["Chroma indexing"] = 0.0
+
+    total_elapsed = time.time() - total_start_time
+
+    print("\n" + "=" * 70)
+    print("BUILD TIME SUMMARY")
+    print("=" * 70)
+    for stage_name, elapsed in stage_timings.items():
+        print(f"{stage_name:<45} {format_seconds(elapsed)}")
+    print("-" * 70)
+    print(f"{'Total build time':<45} {format_seconds(total_elapsed)}")
+    print("=" * 70)
 
     print("\nDone.")
     print(
         "Next: run the API with: "
         "uvicorn src.api_langchain:app --reload"
     )
-
 
 if __name__ == "__main__":
     main()
