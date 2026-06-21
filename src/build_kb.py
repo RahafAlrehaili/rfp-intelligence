@@ -69,7 +69,7 @@ DOCS_JSON = DATA_DIR / "kb_documents.json"
 CHROMA_DIR = DATA_DIR / "chroma_db"
 USASK_RFP_ID = "USask-GenAI-730126"
 
-SCRIPT_VERSION = "v2.1.0-parallel-processing-timing"
+SCRIPT_VERSION = "v2.1.1-standardize-beamdata"
 PROCESSING_TIMESTAMP = datetime.now(timezone.utc).isoformat()
 
 CHUNKER = SmartChunker(
@@ -121,13 +121,13 @@ when its chunks are converted into LangChain Documents.
 COMPANY_PDF_FILES: Dict[str, Dict[str, object]] = {
     "Beamdata Past Project Descriptions.pdf": {
         "doc_type": "past_projects",
-        "document_tags": ["past-project", "weclouddata", "beamdata", "company"],
+        "document_tags": ["past-project", "weclouddata", "BeamData", "company"],
         "pipeline_name": "company_pdf_past_projects_pipeline",
-        "prefix": "Note: WeCloudData is a sister company of Beamdata. Projects appear under both brands.\n\n",
+        "prefix": "Note: WeCloudData is a sister company of BeamData. Projects appear under both brands.\n\n",
     },
     "Beam Data AI Hub Intro.pptx (1).pdf": {
         "doc_type": "company_intro",
-        "document_tags": ["beamdata", "company", "genai", "product", "ai-hub"],
+        "document_tags": ["BeamData", "company", "genai", "product", "ai-hub"],
         "pipeline_name": "company_pdf_ai_hub_intro_pipeline",
         "prefix": "",
     },
@@ -209,6 +209,35 @@ def slugify_tag(value: Any) -> str:
     tag = re.sub(r"[^a-z0-9]+", "-", tag)
     tag = re.sub(r"-+", "-", tag).strip("-")
     return tag
+
+
+def normalize_beamdata_name(value: Any) -> Any:
+    """Standardize BeamData naming in KB content and metadata.
+
+    The evaluation dataset may include spelling variations because users can ask
+    with inconsistent spelling. The production knowledge base should be clean
+    and use the official name consistently: BeamData.
+    """
+    if not isinstance(value, str):
+        return value
+
+    # Normalize common spacing/casing variants while preserving other text.
+    value = re.sub(r"\bBeam\s+Data\b", "BeamData", value, flags=re.IGNORECASE)
+    value = re.sub(r"\bBeamdata\b", "BeamData", value, flags=re.IGNORECASE)
+    return value
+
+
+def normalize_beamdata_recursive(value: Any) -> Any:
+    """Apply BeamData name normalization to nested metadata structures."""
+    if isinstance(value, str):
+        return normalize_beamdata_name(value)
+    if isinstance(value, list):
+        return [normalize_beamdata_recursive(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(normalize_beamdata_recursive(item) for item in value)
+    if isinstance(value, dict):
+        return {key: normalize_beamdata_recursive(item) for key, item in value.items()}
+    return value
 
 # =============================================================================
 # 4) TAGGING SYSTEM
@@ -292,7 +321,7 @@ emails, phone numbers, and URLs.
 """
 
 _MASKING_WHITELIST_STR = (
-    "Beamdata, WeCloudData, Beam Data, We Cloud Data, BeamData AI, "
+    "BeamData, WeCloudData, We Cloud Data, BeamData AI, "
     "Sportradar, WCC, Globe and Mail, TrustABC, XYZ Robotics, "
     "Saudi Digital Academy, MCIT, HRDF, AI71, Ministry of Defense, "
     "Singapore Management University, SIT, StackFuel"
@@ -336,7 +365,7 @@ def _mask_via_llm(text: str, client: OpenAI) -> str:
             max_tokens=4096,
             messages=[{"role": "user", "content": prompt}],
         )
-        return resp.choices[0].message.content.strip()
+        return normalize_beamdata_name(resp.choices[0].message.content.strip())
     except Exception as e:
         print(f"  ⚠️  LLM masking failed: {e} — keeping original text")
         return text
@@ -394,6 +423,10 @@ def find_zip_entry(zf: zipfile.ZipFile, target_file_name: str) -> Optional[str]:
 def safe_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
     """Convert metadata values into Chroma-safe scalar strings/numbers/bools."""
     safe: Dict[str, Any] = {}
+
+    # Standardize BeamData in all metadata before converting nested values to JSON.
+    metadata = normalize_beamdata_recursive(metadata)
+
     for key, value in metadata.items():
         if value is None:
             safe[key] = ""
@@ -437,6 +470,15 @@ def build_document_metadata(
     Returns:
         Metadata dictionary
     """
+    source = normalize_beamdata_name(source)
+    source_folder = normalize_beamdata_name(source_folder)
+    doc_type = normalize_beamdata_name(doc_type)
+    pipeline_name = normalize_beamdata_name(pipeline_name)
+    content_type = normalize_beamdata_name(content_type or "")
+    file_ext = normalize_beamdata_name(file_ext or "")
+    rfp_id = normalize_beamdata_name(rfp_id or "")
+    document_tags = [normalize_beamdata_name(tag) for tag in document_tags]
+
     return {
         "source": source,
         "source_folder": source_folder,
@@ -516,6 +558,10 @@ class KBDocumentBuilder:
         Returns:
             LangChain Document object
         """
+        content = normalize_beamdata_name(content)
+        section = normalize_beamdata_name(section)
+        document_metadata = normalize_beamdata_recursive(document_metadata)
+
         document_tags = document_metadata.get("document_tags", []) or []
         merged_tags = sorted(set(document_tags) | set(chunk_tags))
         chunk_id = make_chunk_id(document_metadata, chunk_index, page=page, section=section)
@@ -564,7 +610,7 @@ def read_pdf(path: Path, source_name: Optional[str] = None) -> List[Dict[str, An
         for page_num, page in enumerate(pdf.pages, 1):
             if page_num in skip_pages:
                 continue
-            text = clean(page.extract_text() or "")
+            text = normalize_beamdata_name(clean(page.extract_text() or ""))
             if len(text) >= config.MIN_CHUNK_LENGTH:
                 results.append({"page": page_num, "text": text})
     return results
@@ -655,10 +701,10 @@ def read_docx_proposal(path: Path, source_name: Optional[str] = None) -> List[Di
         nonlocal section_index
         if not current_keep:
             return
-        body = clean("\n".join(current_lines))
+        body = normalize_beamdata_name(clean("\n".join(current_lines)))
         if len(body) < config.MIN_CHUNK_LENGTH:
             return
-        heading = " > ".join(current_heading_path).strip()
+        heading = normalize_beamdata_name(" > ".join(current_heading_path).strip())
         if not heading:
             return
         sections.append({"heading": heading, "text": body, "section_index": section_index})
@@ -1142,7 +1188,7 @@ def extract_scope_openpyxl(path: Path) -> Tuple[str, Optional[Dict[str, Any]]]:
 def build_scope_capability_prompt(scope_text: str) -> str:
     """Create the LLM prompt that turns tender scope text into capability JSON."""
     return f"""
-You are preparing clean structured data for a Beam Data RAG knowledge base.
+You are preparing clean structured data for a BeamData RAG knowledge base.
 
 You will receive ONLY the Scope text extracted from an Excel tender/project file.
 
@@ -1197,7 +1243,7 @@ The capability_text should provide a comprehensive capability summary rather tha
 Multiple paragraphs are allowed if needed to preserve all important technical details.
 
 The summary should begin with:
-"Beam Data Capability Areas in <Industry>:"
+"BeamData Capability Areas in <Industry>:"
 
 Then describe all relevant capabilities supported by the scope in a clear, reusable format suitable for a RAG knowledge base.
 
@@ -1263,10 +1309,10 @@ def process_single_excel(args: Tuple) -> Optional[Dict[str, Any]]:
             # Extract capabilities using LLM
             result = extract_capabilities_with_llm(scope_text, oai_client)
             
-            capability_text = result.get("capability_text", "").strip()
+            capability_text = normalize_beamdata_name(result.get("capability_text", "").strip())
             result_meta = result.get("metadata", {}) or {}
-            capabilities = result_meta.get("capabilities", []) or []
-            industry = result_meta.get("industry", "") or ""
+            capabilities = normalize_beamdata_recursive(result_meta.get("capabilities", []) or [])
+            industry = normalize_beamdata_name(result_meta.get("industry", "") or "")
             
             if not capability_text:
                 print(f"  [skip] Empty capability_text: {fname}")
@@ -1367,7 +1413,7 @@ def pipeline_c_excel_scopes(oai_client: Optional[OpenAI] = None) -> List[Documen
                             doc_type="tender_scope_capabilities",
                             content_type="capability_summary",
                             pipeline_name="tender_excel_scope_capabilities_pipeline",
-                            document_tags=["tender", "tender-scope", "capabilities", "beamdata"],
+                            document_tags=["tender", "tender-scope", "capabilities", "BeamData"],
                             file_hash_value=result["entry_hash"],
                             rfp_id=re.sub(r"[^\w]+", "_", Path(result["entry"].filename).parent.name)[:80],
                             is_proposal=False,
@@ -1392,7 +1438,7 @@ def pipeline_c_excel_scopes(oai_client: Optional[OpenAI] = None) -> List[Documen
                             doc_meta["scope_cell"] = result["extraction_info"].get("scope_cell_address", "")
                         
                         # Build tags
-                        base_tags = ["tender", "tender-scope", "capabilities", "beamdata"]
+                        base_tags = ["tender", "tender-scope", "capabilities", "BeamData"]
                         if result["industry"]:
                             industry_tag = slugify_tag(result["industry"])
                             if industry_tag:

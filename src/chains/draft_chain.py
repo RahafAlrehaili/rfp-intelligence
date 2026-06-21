@@ -5,7 +5,7 @@ from openai import OpenAI
 
 from src import config
 from src.prompts.draft import DRAFT_PROMPT
-from src.retrievers.hybrid import HybridRetriever
+from src.retrievers.reranked import RerankedRetriever
 
 
 def format_docs(docs):
@@ -82,7 +82,7 @@ def call_openai(prompt_value):
 
 
 def build_draft_chain():
-    retriever = HybridRetriever(alpha=0.6)
+    retriever = RerankedRetriever()
 
     def retrieve_payload(payload: dict):
         section_prompt = payload["section_prompt"]
