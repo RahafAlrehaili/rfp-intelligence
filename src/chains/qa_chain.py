@@ -5,7 +5,7 @@ from openai import OpenAI
 
 from src import config
 from src.prompts.qa import QA_PROMPT
-from src.retrievers.hybrid import HybridRetriever
+from src.retrievers.reranked import RerankedRetriever
 
 
 def format_docs(docs):
@@ -31,6 +31,7 @@ def format_docs(docs):
         page = doc.metadata.get("page", "")
         section = doc.metadata.get("section", "")
         hybrid_score = doc.metadata.get("hybrid_score", "")
+        rerank_score = doc.metadata.get("rerank_score", "")
 
         # Debug output to inspect which chunks were retrieved.
         print(f"\n[{i}]")
@@ -38,6 +39,7 @@ def format_docs(docs):
         print("PAGE   :", page)
         print("SECTION:", section)
         print("HYBRID :", hybrid_score)
+        print("RERANK :", rerank_score)
         print("TEXT   :", doc.page_content[:200].replace("\n", " "))
 
         # This exact numbering format is important because the prompt
@@ -157,9 +159,9 @@ def build_qa_chain():
 
     User Question
         ↓
-    HybridRetriever
+    RerankedRetriever
         ↓
-    Retrieved Documents
+    Hybrid candidates + reranked top documents
         ↓
     format_docs()
         ↓
@@ -170,9 +172,11 @@ def build_qa_chain():
     Answer + Used Sources
     """
 
-    retriever = HybridRetriever(
-        alpha=0.6
-    )
+    # Use the reranked retriever instead of the raw hybrid retriever.
+    # Flow:
+    # HybridRetriever gets initial candidates from semantic + BM25 search.
+    # CrossEncoder reranker then reorders those candidates based on query-context relevance.
+    retriever = RerankedRetriever()
 
     def retrieve_payload(question: str):
         """
