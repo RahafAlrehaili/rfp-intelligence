@@ -1,0 +1,2 @@
+﻿setup,context_precision,context_recall,faithfulness,answer_relevancy,semantic_similarity,citation_accuracy,latency_seconds,n_claims
+reranked_k40_top3,0.548245614,0.61622807,0.791585801,0.834449895,0.740011625,0.993939394,4.800689315,2.236842105

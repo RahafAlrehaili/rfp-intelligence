@@ -1,0 +1,1225 @@
+﻿setup,embedding_model,generation_model,judge_model,chunk_size,chunk_overlap,retriever_k,rerank_top_n,reranker_model,question,category,difficulty,source,doc_type,section,page,expected_citation,expected_answer,ground_truth_context,answer,retrieved_contexts,latency_seconds,n_contexts,n_claims,context_precision,context_recall,faithfulness,answer_relevancy,semantic_similarity,citation_accuracy
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What AI capabilities were integrated into the RAG Chatbot project for Company XYZ?,AI / data capabilities,medium,Beamdata Past Project Descriptions.pdf,past_projects,,2.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '2', 'chunk_id': '6f1aec8a3e2838dee019e159d05f2247a8e7421c'}","The RAG Chatbot integrated a LangChain-based retrieval-augmented generation system in a Docker container, using NLP to understand user questions and retrieve relevant information. It also used a Streamlit interface so carriers and drivers could submit queries and receive responses more easily.","RAG Chatbot: “Streamlining User Interactions through Advanced AI Capabilities” Problem: RAG Chatbot: Company XYZ seeks to improve customer support by reducing response times and manual intervention in addressing queries from carriers and drivers. Solution: ● Integrated AI-Driven Response System: By utilizing the Langchain RAG (Retrieval-Augmented Generation) model within a Docker container, the chatbot leverages natural language processing to understand user queries and retrieve relevant information. ● Streamlined Interface with Streamlit: The use of Streamlit for the user interface simplifies interaction, enabling a seamless experience for users to input queries and receive responses.","The RAG Chatbot project for Company XYZ integrated several advanced AI capabilities to enhance customer support. These include:
+
+1. **AI-Driven Response System**: The chatbot utilizes the Langchain RAG (Retrieval-Augmented Generation) model, which employs natural language processing to understand user queries and retrieve relevant information [1].
+
+2. **Streamlined User Interface**: The project incorporates Streamlit for the user interface, simplifying user interactions and enabling a seamless experience for inputting queries and receiving responses [1][2].
+
+3. **Docker Containerization**: The application is containerized using Docker, ensuring consistency and stability across different deployment environments [2].
+
+These capabilities collectively contribute to improved user experience, reduced load on customer support, and 24/7 availability of the chatbot [2].","RAG Chatbot: “Streamlining User Interactions through
+Advanced AI Capabilities”
+Problem:
+RAG Chatbot: Company XYZ seeks to improve customer support by reducing response times and manual intervention in
+addressing queries from carriers and drivers.
+Solution:
+● Integrated AI-Driven Response System: By utilizing the Langchain RAG (Retrieval-Augmented Generation) model
+within a Docker container, the chatbot leverages natural language processing to understand user queries and
+retrieve relevant information.
+● Streamlined Interface with Streamlit: The use of Streamlit for the user interface simplifies interaction, enabling
+a seamless experience for users to input queries and receive responses.
+
+---
+
+a seamless experience for users to input queries and receive responses.
+● Docker containerization ensures that the chatbot application is consistent and stable across different deployment
+environments.
+Results:
+● Enhanced User Experience: The chatbot significantly improves the way users interact with the Company XYZ
+platform by providing instant responses to their inquiries.
+● Reduced Load on Customer Support: By automating responses to common questions, the chatbot has alleviated
+the workload on human customer support teams.
+● The chatbot offers 24/7 availability, ensuring users have consistent access to support regardless of the time of
+day.
+
+---
+
+Solution:
+A conversational AI-powered News Agent was developed to provide readers with personalized access to The News
+Company ABC journalism through natural language interactions. The solution leverages Retrieval-Augmented Generation
+(RAG), vector search, and fine-tuned language models to retrieve information exclusively from The News Company ABC
+articles, ensuring answers remain grounded in trusted editorial content. The platform allows users to ask questions,
+discover relevant articles, receive AI-generated summaries, and explore topics through an intuitive chat interface
+integrated into The News Company ABC’s web and mobile platforms.
+Results:
+● Personalized News Discovery: Enabled readers to ask natural language questions and receive curated answers",4.463230609893799,3,4,0.9999999999,1.0,1.0,0.9707726963085967,0.8082289979650142,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How did BeamData enhance the driver onboarding process for Company XYZ?,past projects,medium,Beamdata Past Project Descriptions.pdf,past_projects,,4.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '4', 'chunk_id': '6a940b69e569ecdc0f510a76816ac6c747d81911'}","BeamData enhanced driver onboarding by building an automated document verification pipeline with AWS Textract to extract and interpret data from documents such as driver's licenses and CVOR certificates. The solution used a scalable AWS architecture, including S3 for storage, Lambda for processing, and EventBridge for scheduled tasks.","Problem： Verification Pipeline: Company XYZ is addressing the inefficiencies and errors that often arise in the manual driver onboarding process, which slow down operations and prevent scalability. Solution: Verification Pipeline: ● Automated Document Verification with AWS Textract: An automated document verification pipeline was created using AWS Textract to accurately and efficiently extract and interpret data from essential documents such as driver's licenses and CVOR certificates. ● Scalable Cloud-Based Architecture: The system's design utilizes a robust cloud architecture, including services like AWS S3 for document storage, AWS Lambda for processing, and AWS EventBridge for scheduling tasks.","BeamData enhanced the driver onboarding process for Company XYZ by addressing inefficiencies and errors associated with manual document verification. They implemented a Verification Pipeline that automated the document verification process, which improved the efficiency and accuracy of onboarding drivers. This solution helped to streamline operations, reduce errors, and facilitate a smoother onboarding experience for new drivers [1].","Driver Marketplace in the transportation industry
+Summary Slides
+Testimonial
+""Working with the team at BeamData was an insightful and fulfilling experience. As CEO of Company XYZ. I had zero
+working knowledge in Artificial intelligence, machine learning, large language models and chatbots. Each member of
+their team excelled in their specific department and thoroughly delivered the information in everyday language I could
+retain, and share. Thank you to Communitech and the Ontario Vehicle Innovation Network (OVIN) for supporting our
+project.”
+Headings:
+Verification Pipeline: “Enhancing Driver Onboarding through Automated Document Verification.”
+Problem：
+Verification Pipeline: Company XYZ is addressing the inefficiencies and errors that often arise in the manual driver
+
+---
+
+coordinating signatures. Existing processes created operational inefficiencies, limited self-service capabilities, slowed
+customer onboarding, and made it difficult to scale operations as auction volumes increased. The organization also
+needed a flexible solution that could integrate with its core Auctioneer platform, future A5 platform upgrades, and the
+newly established cloud data warehouse.
+Solution:
+BeamData designed and implemented a Digital Document Application using Microsoft Power Platform to modernize and
+automate document-driven auction workflows. The solution leveraged Power Apps, Power Automate, AI Builder,
+Dataverse, Azure services, and integration with Auctioneer to create a low-code digital workflow platform. Key
+
+---
+
+BeamData Capability Areas in Transportation: The proposed solution encompasses a high-availability SQL database infrastructure designed to enhance the reliability and fault tolerance of the Video Management System (VMS) at the Toronto Transit Commission (TTC). The implementation involves installation and configuration of two high-availability SQL Server clustering databases within the existing VMS architecture, ensuring continuous operation and data synchronization to prevent service disruptions. Additionally, comprehensive training on SQL database processes will be provided, fostering knowledge transfer to improve the effectiveness of VMS operations",2.4511642456054688,3,1,0.0,0.0,0.6666666666666666,0.9999999999999153,0.7365995339596545,0.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What were the results of the AI exploration in healthcare project?,industry-specific capabilities from tender scopes,medium,Beamdata Past Project Descriptions.pdf,past_projects,,7.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '7', 'chunk_id': '2e1eeecca1f68c15ef23c8f912cc3dcd34588781'}","The healthcare AI exploration produced a unified strategy that strengthened the client's healthcare presence, achieved 85% accuracy for surge optimization, created a pipeline of four additional health-provider resources, and improved the client's data-driven capabilities, service quality, and competitive position.","Results: ● The unified strategy strengthens the client's presence in the healthcare domain. ● 85% accuracy of surge optimization; 4 other health provider resources in pipeline ● These approaches enhances their data-driven capabilities, elevates service quality, and fortifies their competitive advantage.","The results of the AI exploration in healthcare project included a unified strategy that strengthened the client's presence in the healthcare domain. Specifically, the project involved the development of a Health Score system, a web scraping pipeline for maintaining accurate website information, and a Holiday Surge Optimization tool for predicting clinician availability during holiday seasons [1].","Headings:
+“AI Exploration in Healthcare - Uncovering Comprehensive Data Insights by AI”
+Problem：
+The client is seeking an optimizing AI strategy on their data analysis and hardening the data infrastructure.
+Solution:
+● Built a Health Score system that offers users a score for each postal code, indicating the accessibility of
+healthcare services in that area.
+● Established web scraping pipeline, operating within the AWS ecosystem, plays a vital role in keeping the client’s
+website's information current and accurate.
+● Built a Holiday Surge Optimization tool using a forecasting model, that predicts the availability of clinicians during
+holiday seasons
+Results:
+● The unified strategy strengthens the client's presence in the healthcare domain.
+
+---
+
+teams access information more efficiently while maintaining operational oversight.
+Results:
+● AI-Powered Health Information Assistant: Enabled users to access trusted women’s health information through
+natural language conversations and contextual knowledge retrieval.
+● Enhanced Patient Engagement: Improved accessibility to educational content, health resources, and support
+information outside traditional clinical interactions.
+● Knowledge Management and Search: Centralized healthcare knowledge, policies, procedures, and support
+resources into a searchable AI-powered platform.
+● Operational Efficiency Gains: Reduced manual effort associated with answering repetitive questions, onboarding
+activities, and information requests.
+
+---
+
+BeamData has delivered transformative AI projects, including a ScaleAI-funded initiative for The Globe and Mail, where we enhanced their digital subscription platform with AI-driven content recommendations and personalization. Utilizing natural language processing (NLP) and ML infrastructure optimization, we improved user engagement with secure, user-focused AI solutions. In the healthcare sector, we consulted for startups, developing AI tools for patient data analysis and predictive modeling. These projects employed NLP and predictive algorithms to streamline diagnostics and improve scalability, supporting [CLIENT_NAME]’s needs for research-focused AI applications and data analysis services.",2.9110138416290283,3,1,0.0,0.25,0.8333333333333334,0.9989990391935653,0.7227261918309752,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,Describe the solution implemented for optimizing battery performance in modular battery systems.,product capabilities,hard,Beamdata Past Project Descriptions.pdf,past_projects,,11.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '11', 'chunk_id': '7067f55a412cd8cb10f75a7a2a4fdba34118be0f'}","The battery performance solution used advanced simulation and optimization methods, including Monte Carlo simulations, Sobol sequences, dynamic programming, genetic algorithms, and simulated annealing. These techniques analyzed factors such as voltage, amperage, and cooling-system attributes, while an ensemble model predicted battery behavior and temperature under different conditions.","Battery Temperature Optimization: ● Advanced Data-Driven Simulation and Optimization: A suite of optimization techniques, including Monte Carlo simulations, Sobol sequences, dynamic programming, genetic algorithms, and simulated annealing, were employed to predict and optimize battery performance. These methods regulated battery temperature by analyzing key parameters such as voltage, amperage, and cooling system attributes. ● Ensemble Method for Prediction: Multiple optimization algorithms were integrated to create a comprehensive theoretical model that predicts battery behavior and temperature under various conditions. This ensemble method provided insights into the influence of different factors on battery temperature regulation.","The solution implemented for optimizing battery performance in modular battery systems involved several advanced data-driven techniques aimed at managing battery temperature effectively. The key components of the solution included:
+
+1. **Advanced Data-Driven Simulation and Optimization**: A suite of optimization techniques was employed, including Monte Carlo simulations, Sobol sequences, dynamic programming, genetic algorithms, and simulated annealing. These methods were utilized to predict and optimize battery performance by regulating battery temperature through the analysis of critical parameters such as voltage, amperage, and cooling system attributes [1][2].
+
+2. **Ensemble Method for Prediction**: Multiple optimization algorithms were integrated to create a comprehensive theoretical model that predicts battery behavior and temperature under various conditions. This ensemble method provided valuable insights into the influence of different factors on battery temperature regulation [2][3].
+
+3. **Knowledge Repository and Automated Workflow**: A detailed knowledge repository was compiled, which included Python scripts, research materials, and documentation. An automated workflow was also established to streamline data analysis, model training, and result interpretation, ensuring efficient future battery development phases [3].
+
+Overall, these strategies allowed for a robust understanding of temperature behavior in batteries, even in the absence of physical prototypes, thereby aligning with client specifications and addressing the challenges posed by construction delays [1].","Headings:
+Optimizing Battery Performance: ""Leveraging Data-Driven Techniques to Improve Temperature Control and Efficiency in
+Modular Battery Systems.""
+Problem:
+Battery Temperature Optimization:
+Company234 faced the challenge of optimizing battery performance across a variety of applications, such as home
+energy systems, drones, and electric vehicles. The primary issue was managing battery temperature under different
+operating conditions to ensure efficiency, longevity, and safety. The construction delay of the physical battery system
+further compounded the problem, requiring an adaptive shift towards theoretical simulations.
+Solution:
+Battery Temperature Optimization:
+● Advanced Data-Driven Simulation and Optimization: A suite of optimization techniques, including Monte Carlo
+
+---
+
+Battery Temperature Optimization:
+● Advanced Data-Driven Simulation and Optimization: A suite of optimization techniques, including Monte Carlo
+simulations, Sobol sequences, dynamic programming, genetic algorithms, and simulated annealing, were
+employed to predict and optimize battery performance. These methods regulated battery temperature by
+analyzing key parameters such as voltage, amperage, and cooling system attributes.
+● Ensemble Method for Prediction: Multiple optimization algorithms were integrated to create a comprehensive
+theoretical model that predicts battery behavior and temperature under various conditions. This ensemble
+method provided insights into the influence of different factors on battery temperature regulation.
+
+---
+
+method provided insights into the influence of different factors on battery temperature regulation.
+● Knowledge Repository and Automated Workflow: A detailed knowledge repository was compiled, including
+Python scripts, research materials, and documentation. Additionally, an automated workflow was established to
+streamline data analysis, model training, and result interpretation, ensuring efficient future battery development
+phases.
+Results:
+Battery Temperature Optimization:
+● Successful Theoretical Modeling: Despite the delay in battery construction, simulations provided a robust
+understanding of temperature behavior under various conditions, validated through theoretical models that
+aligned with client specifications.",5.002596139907837,3,4,0.99999999995,1.0,1.0,0.9444601158263453,0.8447781057539392,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What challenges were addressed in the Distribution Requirements Planning (DRP) project?,proposal-style questions,medium,Beamdata Past Project Descriptions.pdf,past_projects,,45.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '45', 'chunk_id': '3aa4d79cd7e30f08adf4440ab5b407ba41b527ad'}","The DRP project addressed forecast accuracy and data variability challenges, including manual errors that caused more than 20% negative quantity shifts in forecasts and the need to handle seasonal trends and anomalies.",Problem: The client aimed to improve forecast accuracy and reduce data variability. Challenges included: ● Over 20% negative quantity shifts in forecasts due to manual errors. ● Need to address seasonal data trends and anomalies.,"In the Distribution Requirements Planning (DRP) project, the client faced several challenges that needed to be addressed:
+
+1. Over 20% negative quantity shifts in forecasts due to manual errors.
+2. The need to address seasonal data trends and anomalies.
+
+These challenges highlighted the necessity for improved forecast accuracy and reduced data variability [1].","Heading
+Enhancing Forecast Accuracy - Distribution Requirements Planning (DRP)
+Problem:
+The client aimed to improve forecast accuracy and reduce data variability. Challenges included:
+● Over 20% negative quantity shifts in forecasts due to manual errors.
+● Need to address seasonal data trends and anomalies.
+Solution:
+● BeamData implemented a comprehensive strategy to address these challenges, focusing on advanced data
+processing to streamline operations and improve decision-making. Automated ETL processes using SQL Server
+and PowerBI enabled efficient reporting, making data more accessible for regular analysis. Additionally, the team
+applied neural network models combined with KNN for demand forecasting, enhancing accuracy in predicting
+future needs.
+
+---
+
+Converting human workflows into automated Agentic workflows is not only a technical challenge but also a culture challenge. Based on our experience, AI products are not well received when they don’t fit into end users’ typical workflows. That’s why the end user survey and UAT is extremely important in the process. Our consultants can be deployed to work closely with the staff in each department and learn their existing workflows, get their input, and build something that will be liked by the end users. As part of the change management process, we will deliver training to the end users and the training starts from the moment of initial requirement gathering.
+
+---
+
+streamlined operations, allowing the organization to manage both product categorization and demand
+forecasting with minimal manual intervention.
+● Future Roadmap: A plan was outlined for future AI and data projects, including the development of a
+comprehensive analytics database and further internal data products like personalized recommendations and
+customer retention models.
+Tech tools:
+● ARIMA,Prophet,CNN-QR,DeepAR+
+● AWS Lambda
+● API Gateway
+● AWS Pipelines",2.896463632583618,3,1,0.9999999999,1.0,1.0,0.9400496376744679,0.7957432932301992,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How did BeamData improve the marketing attribution modeling for Company456?,tender scope capability summaries,medium,Beamdata Past Project Descriptions.pdf,past_projects,,14.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '14', 'chunk_id': '295430e782c3cc95a0aa62668dcfc17890b635a0'}","BeamData improved marketing attribution modeling by creating four automated MAM notebooks for different conversion types and historical data ranges, allowing monthly execution on EC2. It also reformatted MAM predictions for direct Snowflake upload and added a system service to automate EC2 start/stop and output upload after processing.","● Automated MAM Execution: Four separate notebooks were created to handle different combinations of conversion types and historical data ranges, ensuring that MAM could run for both registration/subscription and return visits across multiple channels. These notebooks were set up to run monthly using an EC2 server. ● Output Format Update and Integration: The MAM predictions were formatted for direct upload into Snowflake (SOPHI Database) for both the original and extended list of channels. A system service was created to automate the EC2 start/stop processes and ensure that MAM outputs are uploaded to Snowflake after processing.","BeamData improved the marketing attribution modeling for Company456 by implementing a Markov Chain Attribution Model (MAM) that allowed for the analysis of customer journeys and predictions of conversions by channel. The enhancements included running the model with an extended list of marketing channels, which added granularity and improved attribution insights across a wider range of touchpoints [1][3]. Additionally, the output format was changed to facilitate the upload of results to the Snowflake database for further visualization, streamlining the process and enhancing usability [1].","Headings:
+Marketing Attribution Modeling: ""Automating and Enhancing Multi-Channel Attribution for Optimized Customer
+Journey Insights.""
+Problem:
+Marketing Attribution Modeling:
+The Company456 team needed to run a Markov Chain Attribution Model (MAM) to analyze customer journeys, predict
+conversions by channel, and estimate the effects of channel removal for various types of conversions (registration,
+subscription, return visits). The original model was manual, required separate runs for each type of conversion, and
+produced outputs in Excel and parquet files. The Company456 team requested updates to:
+1. Run the model with an extended list of channels.
+2. Change the output format to upload results to the Snowflake database for further visualization.
+
+---
+
+Heading:
+Revolutionizing Real Estate Suggestions – BeamData’s Tailored Solutions for Company357
+Problem:
+The client needed an advanced recommendation engine to enhance user engagement by:
+● Sending personalized emails with similar property listings.
+● Identifying listings that align with user browsing habits.
+● Expanding recommendations to include new listings and similar neighborhoods.
+Solution:
+BeamData developed a robust recommendation engine, leveraging:
+● Data Preparation and Cleaning:
+○ Analyzed user activity and listing data to understand structure and correlations.
+○ Standardized and encoded data for machine learning applications using pd.getdummies.
+● Similarity Analysis:
+○ Applied Cosine Similarity for continuous variables.
+○ Used Jaccard Similarity for categorical variables.
+
+---
+
+Marketing Attribution Modeling:
+● Extended Attribution Modeling: The model successfully processed predictions for an extended list of marketing
+channels, adding granularity and improving attribution insights across a wider range of touchpoints.",2.839984655380249,3,2,0.9999999999,0.0,0.6666666666666666,0.9999999999999228,0.6295879712166095,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What was the primary objective of the AI-Driven Decarbonization project?,industry-specific capabilities from tender scopes,easy,Beamdata Past Project Descriptions.pdf,past_projects,,27.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '27', 'chunk_id': 'd40136b1c1c7a98e48e8d7b36bc023f88ba3dd3e'}","The primary objective was to optimize decarbonization planning by clustering buildings based on physical characteristics. This helped the client target carbon-reduction strategies more effectively, automate the planning process, and handle complex building data at scale.","Company 567: AI-Driven Decarbonization “AI-Driven Decarbonization - Optimizing Carbon Reduction Plans with Advanced Clustering Models” Problem: The client sought to optimize their decarbonization planning process by segmenting buildings into clusters based on physical characteristics. This would allow them to better target carbon reduction strategies, automate processes, and handle complex building data at scale.","The primary objective of the AI-Driven Decarbonization project was to optimize the decarbonization planning process by segmenting buildings into clusters based on their physical characteristics. This segmentation aimed to better target carbon reduction strategies, automate processes, and manage complex building data at scale [1].","Company 567: AI-Driven Decarbonization
+“AI-Driven Decarbonization - Optimizing Carbon
+Reduction Plans with Advanced Clustering Models”
+Problem:
+The client sought to optimize their decarbonization planning process by segmenting buildings into clusters based on
+physical characteristics. This would allow them to better target carbon reduction strategies, automate processes, and
+handle complex building data at scale.
+Solution:
+● Clustering Model: Developed an advanced clustering model using K-Prototypes to segment buildings based on
+features like height, perimeter, and area. This allows for better targeting of carbon reduction plans. The
+clustering model was refined to focus on regional specifics, with 15 clusters generated for British Columbia (BC).
+
+---
+
+[PERSON_NAME], AI Project Manager at [CLIENT_NAME] and an MBA graduate, will oversee the design and implementation of agentic workflows, ensuring the AI platform’s adaptability to [CLIENT_NAME]’s diverse use cases. With a wealth of experience leading AI-driven initiatives across various sectors, [PERSON_NAME] has successfully managed and implemented AI projects for prominent organizations such as [CLIENT_NAME], [CLIENT_NAME], and [CLIENT_NAME]. [PERSON_NAME]’s expertise lies in orchestrating cross-functional teams to deliver scalable AI solutions that align with business objectives and drive innovation. [PERSON_NAME]’s approach combines strategic planning with hands-on execution, ensuring that AI projects are not only technically sound but also deliver tangible business value
+
+---
+
+For this procurement, we propose specific sustainability initiatives tailored to [CLIENT_NAME]. We will adopt a circular economy approach by designing the AI platform for long-term scalability and upgradability, minimizing the need for frequent hardware replacements and supporting economic efficiency. Regular quarterly updates will be delivered automatically, ensuring compatibility and security without extensive resource use, reducing operational waste. Additionally, we will collaborate with [CLIENT_NAME] to integrate AI-driven tools that promote digital learning resources, reducing paper usage and physical material waste, which aligns with environmental sustainability goals",3.352989912033081,3,1,0.9999999999,1.0,1.0,0.9999999999999076,0.8878358032482397,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What were the key results of the Enhanced Railway Monitoring Maintenance Solutions project?,in-scope questions,medium,Beamdata Past Project Descriptions.pdf,past_projects,,58.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '58', 'chunk_id': '1f26f476ac989b55abfdba979253bed2a38a2c02'}","The project improved railway monitoring by enabling detection of minute defects that traditional methods could miss, reducing accident risk and improving safety. It also increased maintenance efficiency by supporting predictive maintenance and timely interventions to reduce downtime.","Results: ● Enhanced Safety Measures: Enabled the detection of minute defects that traditional methods might miss, significantly reducing the risk of accidents and enhancing overall railway safety. ● Increased Maintenance Efficiency: Provided a framework for predictive maintenance, allowing for timely interventions that prevent larger issues and reduce downtime.","The key results of the Enhanced Railway Monitoring Maintenance Solutions project include:
+
+1. **Enhanced Safety Measures**: The project enabled the detection of minute defects that traditional methods might miss, significantly reducing the risk of accidents and enhancing overall railway safety [2].
+
+2. **Increased Maintenance Efficiency**: It provided a framework for predictive maintenance, allowing for timely interventions that prevent larger issues and reduce downtime [2].","Heading:
+Advanced Railway Monitoring Maintenance Solutions
+Problem:
+Railway systems require constant monitoring to detect and address infrastructure defects that could lead to safety
+hazards. Traditional inspection methods are often time-consuming and may not capture minute details crucial for
+effective maintenance. Our scalable framework provides live insights and enables predictive maintenance, ensuring a
+resilient railway network.
+Solutions
+Data Integration and Management:
+● Utilizes the collected LiDAR data to generate precise ""point clouds"" of elevation points, providing accurate
+three-dimensional spatial coordinates of railway infrastructure.
+● Implements advanced data processing techniques to calculate critical parameters essential for infrastructure
+analysis.
+
+---
+
+Strategic Implementation Tools:
+● Develops standardized output data formats for integration into future dashboard applications.
+● Utilizes 3D visualization tools to enhance data reporting and visualization, making it easier for decision-makers to
+understand and act on the insights provided.
+Results:
+● Enhanced Safety Measures: Enabled the detection of minute defects that traditional methods might miss,
+significantly reducing the risk of accidents and enhancing overall railway safety.
+● Increased Maintenance Efficiency: Provided a framework for predictive maintenance, allowing for timely
+interventions that prevent larger issues and reduce downtime.
+
+---
+
+Company 369
+Enhancing Predictive Maintenance: Engine Failure Prediction Project
+Problem:
+The client needs to predict the remaining operating hours until the next engine breakdown and identify engines at high
+risk of failure to optimize maintenance schedules and reduce downtime.
+Method:
+The project utilizes historical data from 3,137 machines across 36 product families and 141 engine models, incorporating
+67 initial features. Data integration involved merging training data with PSR (Product Support Reports) data, focusing on
+engine-specific columns and historical records.
+Solution:
+● Predictive Analysis: The model prioritizes 240 engines likely to fail within 500-1000 operating hours, with a
+classification accuracy of 92% for high-risk failures.",2.756723642349243,3,2,0.99999999995,1.0,1.0,0.9825987018875169,0.8793212772454191,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How did BeamData address the problem of text extraction and semantic search for Company543?,reasoning questions,hard,Beamdata Past Project Descriptions.pdf,past_projects,,53.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '53', 'chunk_id': 'caedb79f9c0c611a205d46cffcde479d4df4687c'}","BeamData addressed the problem by building a text extraction pipeline using Tesseract OCR and Cascade TabNet to extract and analyze text and tables from PDFs. It also created a Dash semantic-search app using Top2Vec and Scispacy, plus a GPU-accelerated semantic-similarity pipeline with Rapids for fast document-corpus search.","A text extraction pipeline using Tesseract OCR and Cascade TabNet was developed to extract and analyze text and tables from PDFs, along with a Dash app for semantic search powered by Top2Vec and Scispacy for topic modeling and entity recognition. Additionally, a GPU-accelerated semantic similarity pipeline using Rapids enabled fast, scalable searches across the entire document corpus.","BeamData addressed the problem of text extraction and semantic search for Company543 by developing a comprehensive text extraction pipeline. This pipeline utilized Tesseract OCR and Cascade TabNet to effectively extract and analyze text and tables from a large document corpus consisting of 38 books. Additionally, BeamData implemented a Dash app for semantic search, which was powered by Top2Vec and Scispacy to facilitate topic modeling and entity recognition. This solution aimed to enhance document processing, enable efficient semantic search, and support faster knowledge discovery and improved decision-making while managing large-scale data processing [1].","Heading:
+Text Extraction and Semantic Search: ""Streamlining Text Intelligence and Semantic Similarity for Enhanced Document
+Processing""
+Problem:
+Company543 required an advanced system to extract text and tables from a large document corpus (38 books), enable
+efficient semantic search, and support topic modeling and entity recognition for faster knowledge discovery and
+improved decision-making, all while handling large-scale data processing.
+Solution:
+A text extraction pipeline using Tesseract OCR and Cascade TabNet was developed to extract and analyze text and tables
+from PDFs, along with a Dash app for semantic search powered by Top2Vec and Scispacy for topic modeling and entity
+
+---
+
+Heading:
+Revolutionizing Real Estate Suggestions – BeamData’s Tailored Solutions for Company357
+Problem:
+The client needed an advanced recommendation engine to enhance user engagement by:
+● Sending personalized emails with similar property listings.
+● Identifying listings that align with user browsing habits.
+● Expanding recommendations to include new listings and similar neighborhoods.
+Solution:
+BeamData developed a robust recommendation engine, leveraging:
+● Data Preparation and Cleaning:
+○ Analyzed user activity and listing data to understand structure and correlations.
+○ Standardized and encoded data for machine learning applications using pd.getdummies.
+● Similarity Analysis:
+○ Applied Cosine Similarity for continuous variables.
+○ Used Jaccard Similarity for categorical variables.
+
+---
+
+Chatbot Development for Personal Finance Queries
+Introduction
+The rise of digital transformation in financial services has highlighted the need for automated solutions to enhance user
+engagement and improve access to financial information. To address this gap, BeamData was tasked with developing a
+Question and Answer (Q&A) Natural Language Processing (NLP) chatbot for The News Company ABC. This chatbot is
+designed to provide accurate answers to common personal finance questions by leveraging a vast corpus of relevant
+financial articles.
+Problem Statement
+Consumers often face challenges in accessing timely and reliable financial information, impacting their decision-making
+processes. Traditional methods, such as relying on financial advisors and customer support, can be expensive and",4.580031394958496,3,1,0.9999999999,0.5,1.0,0.9999999999999091,0.7973305290696496,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What are the key features of the AI-powered agricultural intelligence platform developed by BeamData?,AI / data capabilities,medium,Beamdata Past Project Descriptions.pdf,past_projects,,101.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '101', 'chunk_id': '16e851f6bd13fa44ceba6547eb1962aa339d7f30'}","The platform, AgroMind, combines multimodal crop diagnosis, agricultural knowledge retrieval, intelligent product recommendations, and AI-driven customer service into one unified user experience.","BeamData designed and developed AgroMind, an AI-powered agricultural intelligence platform that integrates multimodal crop diagnosis, agricultural knowledge retrieval, intelligent product recommendations, and AI-driven customer service into a unified user experience.","The key features of the AI-powered agricultural intelligence platform developed by BeamData, named AgroMind, include:
+
+1. **Multimodal Crop Diagnosis**: The platform allows users to upload crop images for diagnosis, leveraging computer vision models to identify issues with crops.
+
+2. **Agricultural Knowledge Retrieval**: Users can ask natural language questions and receive relevant information from agricultural knowledge bases.
+
+3. **Intelligent Product Recommendations**: AgroMind provides recommendations for agricultural products based on the user's needs and crop conditions.
+
+4. **AI-driven Customer Service**: The platform integrates AI to enhance customer service, ensuring users receive timely and accurate support.
+
+5. **E-commerce Integration**: AgroMind combines its agricultural capabilities with e-commerce functionalities, enabling users to discover and purchase relevant products seamlessly.
+
+6. **Unified User Experience**: All these features are integrated into a single platform, providing end-to-end support for farmers [1].","differentiated digital experience that combines agronomy expertise with e-commerce capabilities.
+Solution:
+BeamData designed and developed AgroMind, an AI-powered agricultural intelligence platform that integrates
+multimodal crop diagnosis, agricultural knowledge retrieval, intelligent product recommendations, and AI-driven
+customer service into a unified user experience. The platform combines computer vision models, large language models
+(LLMs), Retrieval-Augmented Generation (RAG), agricultural knowledge bases, recommendation engines, and
+e-commerce integrations to provide end-to-end support for farmers. Users can upload crop images, ask natural language
+questions, receive disease diagnosis and treatment recommendations, discover relevant agricultural products, complete
+
+---
+
+Apart from the AI Hub platform which provides a suite of core features such as chat, knowledge base, RAG, and workflow management, BeamData can also help build customized models and infrastructure.
+
+---
+
+Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+Retrieval-Augmented Generation (RAG), AI agents, workflow automation, and low-code/no-code application
+development capabilities. The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for
+managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and
+on-premise deployments. AI Hub enables organizations to build, deploy, and manage AI-powered assistants, knowledge
+systems, and business automation workflows through a unified platform.
+Results:
+● Model-Agnostic Architecture: Enables organizations to switch between multiple AI models and providers
+without application redesign, reducing vendor lock-in.",4.208572864532471,3,1,0.9999999999,1.0,0.7333333333333333,0.9290871058424828,0.881431098161392,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How did BeamData improve the efficiency of the recommender system for SponsorABC?,past projects,medium,Beamdata Past Project Descriptions.pdf,past_projects,,75.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '75', 'chunk_id': '35b39f6dc3406c8fa544c1723e234c83f02b69c9'}","BeamData improved the recommender system by implementing an on-demand recommender that reduced runtime by 90% and memory usage by 75%, making the platform faster and more responsive.","The newly implemented on-demand recommender system has dramatically improved the efficiency and user experience of SponsorABC’s platform: Achieved a 90% reduction in runtime and a 75% decrease in memory usage, facilitating a faster and more responsive system.","BeamData improved the efficiency of the recommender system for SponsorABC by developing and deploying an innovative on-demand recommender system. This new system achieved a 90% reduction in runtime and a 75% decrease in memory usage, which facilitated a faster and more responsive platform for users [1]. The previous batch-run system was unable to keep pace with the growing user base, leading to delays in recommendation updates. The on-demand system addressed this issue by providing instant sponsor recommendations for events, significantly enhancing user experience [2].","ensuring immediate processing and response.
+Results:
+The newly implemented on-demand recommender system has dramatically improved the efficiency and user experience
+of SponsorABC’s platform:
+● Performance Enhancements:
+○ Achieved a 90% reduction in runtime and a 75% decrease in memory usage, facilitating a faster and
+more responsive system.
+
+---
+
+Recommender system optimization
+Heading:
+Revolutionizing User Experience Recommendations
+Problem:
+The client’s existing batch-run recommender system was unable to keep pace with its growing user base, leading to
+delays in recommendation updates and negatively impacting user satisfaction. Users had to wait until the next day to see
+updated recommendations, which was not conducive to on-the-spot decision making.
+BeamData has successfully developed and deployed an innovative on-demand recommender system for SponsorABC,
+enhancing user experience by providing instant sponsor recommendations for events.
+Solution:
+Refactoring and Modularizing the Recommender Script:
+● Improved the script's structure and readability, aligning it with best practices and preparing it for further
+optimization.
+
+---
+
+BeamData delivers specialized AI training programs for corporate clients across various industries, enhancing workforce capabilities in AI adoption. In healthcare, we partner with [CLIENT_NAME] to train staff in AI for health data management, improving operational efficiency. In research, we collaborate with [CLIENT_NAME] in the UAE, training 400 researchers and guiding 300 capstone projects, resulting in multiple AI research papers. In banking, we upskill teams at [CLIENT_NAME], [CLIENT_NAME], and [CLIENT_NAME] in ML infrastructure and predictive modeling, while for insurance, [CLIENT_NAME] receives training in risk analysis. In telecom, [CLIENT_NAME] benefits from our data analytics training programs.",3.4355876445770264,3,2,0.9999999999,1.0,1.0,0.9999999999998911,0.8226041005156214,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What solution did BeamData provide for the client facing challenges with real-time data streaming in smart agriculture?,past projects,medium,Beamdata Past Project Descriptions.pdf,past_projects,,71.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '71', 'chunk_id': '12544e08f3eccef71b3ac6e4d04ef4dcaaec95d5'}","The provided chunk mainly describes the client's real-time data-streaming challenge in smart agriculture, not the implemented solution. Based on the available evidence, the client needed a more robust, reliable, and scalable pipeline infrastructure for high-volume real-time data collection and timely analysis.","Our client utilizes sensor solutions and provides real-time and actionable insights to make farmers to become more profitable. With the pressure of increasing amount of real-time data collection and its in-time analysis, the client wanted to update the pipeline infrastructure to make it more robust, reliable, and scalable.","BeamData provided a comprehensive solution for the client facing challenges with real-time data streaming in the smart agriculture industry by optimizing the data streaming pipeline. This included enhancing the pipeline's reliability and scalability to address issues such as random breaks and long processing times for frontend users. Additionally, they implemented real-time data visualization using Quickset to improve the overall user experience and data accessibility [1].","An agriculture technology company
+Heading:
+Real-time Data Streaming Pipeline Optimization in Smart Agriculture Industry
+Problem：
+Our client utilizes sensor solutions and provides real-time and actionable insights to make farmers to become more
+profitable. With the pressure of increasing amount of real-time data collection and its in-time analysis, the client wanted
+to update the pipeline infrastructure to make it more robust, reliable, and scalable. The current pipeline randomly
+breaks, takes a long time to process data for frontend users. We proposed several solutions to improve the pipeline
+reliability and scalability.
+Solution:
+1. Comprehensive data streaming pipeline optimization
+2. Real-time data visualization using Quickset
+Results:
+
+---
+
+Introduction
+
+BeamData is a North American-based Data & AI solutions company
+Corporate Clients
+that provides full lifecycle data and AI services to clients across multiple
+industries.
+
+Full-time Consultants
+(Canada) Whether you are an enterprise that needs help with data strategies or
+in need of project resources to build end-to-end AI and machine
+
+Offshore Team Size
+learning solutions, BeamData will help you tackle the most critical
+(China, Pakistan)
+enterprise business challenges so you can continue your business
+12 vision and mission.
+AI/Governance Advisors
+AI Solutions Beyond Strategy:
+
+Countries our clients in
+Amplifying Value with the Right Expertise
+(U.S., Canada, China, UAE, Saudi, Singapore)
+
+---
+
+differentiated digital experience that combines agronomy expertise with e-commerce capabilities.
+Solution:
+BeamData designed and developed AgroMind, an AI-powered agricultural intelligence platform that integrates
+multimodal crop diagnosis, agricultural knowledge retrieval, intelligent product recommendations, and AI-driven
+customer service into a unified user experience. The platform combines computer vision models, large language models
+(LLMs), Retrieval-Augmented Generation (RAG), agricultural knowledge bases, recommendation engines, and
+e-commerce integrations to provide end-to-end support for farmers. Users can upload crop images, ask natural language
+questions, receive disease diagnosis and treatment recommendations, discover relevant agricultural products, complete",3.909207344055176,3,1,0.0,1.0,0.7777777777777778,0.8647651055209886,0.8126412882152123,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What were the results of implementing the AI-powered Reporting Assistant for The News Company ABC?,past projects,medium,Beamdata Past Project Descriptions.pdf,past_projects,,107.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '107', 'chunk_id': '572d74def905fd58ac5704137ed7f4b3ccc17eba'}",The AI-powered Reporting Assistant accelerated news discovery by reducing the time needed to identify newsworthy stories from lengthy public meetings through automated topic detection and summarization.,Results: Accelerated News Discovery: Reduced the time required to identify newsworthy stories from lengthy public meetings through automated topic detection and summarization.,The knowledge base does not contain sufficient information regarding the specific results of implementing the AI-powered Reporting Assistant for The News Company ABC. It only describes the problem and the solution without detailing the outcomes or results achieved from its implementation.,"Heading:
+AI-Powered Reporting Assistant: ""Accelerating News Discovery and Story Development from Public Meeting Data""
+Problem:
+News organizations spend significant time reviewing lengthy public meeting recordings, agendas, and supporting
+documents to identify newsworthy stories. At The News Company ABC, reporters manually monitor city council meetings
+across multiple jurisdictions, resulting in a time-consuming process that limits reporting capacity and increases the risk of
+missing important developments. Existing tools lacked integrated transcription, summarization, knowledge retrieval, and
+editorial assistance capabilities tailored to newsroom workflows.
+Solution:
+An AI-powered Reporting Assistant was developed to automate the analysis of city council meeting recordings,
+
+---
+
+Solution:
+A conversational AI-powered News Agent was developed to provide readers with personalized access to The News
+Company ABC journalism through natural language interactions. The solution leverages Retrieval-Augmented Generation
+(RAG), vector search, and fine-tuned language models to retrieve information exclusively from The News Company ABC
+articles, ensuring answers remain grounded in trusted editorial content. The platform allows users to ask questions,
+discover relevant articles, receive AI-generated summaries, and explore topics through an intuitive chat interface
+integrated into The News Company ABC’s web and mobile platforms.
+Results:
+● Personalized News Discovery: Enabled readers to ask natural language questions and receive curated answers
+
+---
+
+Results:
+● Personalized News Discovery: Enabled readers to ask natural language questions and receive curated answers
+sourced directly from The News Company ABC journalism.
+● AI-Powered Content Retrieval: Reduced reliance on traditional keyword search by providing contextual article
+recommendations and conversational access to news content.
+● Trusted and Governed Responses: Ensured answers were grounded exclusively in The News Company ABC
+articles, maintaining editorial integrity and compliance requirements.
+● Enhanced Reader Experience: Delivered summarized and personalized content tailored to user interests and
+information needs.
+● Increased User Engagement: Created a more interactive news consumption experience designed to improve",2.8593835830688477,3,0,0.9999999999,0.0,0.0,0.0,0.5255128546700631,
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What technologies were used in the development of the Digital Document Automation Platform for Automotive Auctions?,AI / data capabilities,medium,Beamdata Past Project Descriptions.pdf,past_projects,,96.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '96', 'chunk_id': '6499f3c13b7e0086b3d046758b102d865a2ee6e2'}","The platform used Microsoft Power Apps, Power Automate, AI Builder, Dataverse, Power Platform, Azure Functions, Azure SQL, Azure Data Warehouse/Synapse, On-Premises Data Gateway, REST APIs, DocuSign integration, SQL Server, and the Microsoft 365 ecosystem.","Technologies: Microsoft Power Apps, Microsoft Power Automate, Microsoft AI Builder, Microsoft Dataverse, Microsoft Power Platform, Azure Functions, Azure SQL, Azure Data Warehouse / Synapse, On-Premises Data Gateway, REST APIs, DocuSign Integration, SQL Server, Microsoft 365 Ecosystem","The development of the Digital Document Automation Platform for Automotive Auctions utilized several technologies, including Microsoft Power Platform, which encompasses Power Apps, Power Automate, and AI Builder. Additionally, the solution employed Dataverse and Azure services for integration and functionality. The platform was designed to create a low-code digital workflow ecosystem that could integrate with the existing Auctioneer platform and support future upgrades and cloud data warehouse capabilities [2][3].","Heading:
+Digital Document Automation Platform for Automotive Auctions: ""Digitizing Paper-Based Auction Operations Through
+AI-Powered Form Processing, Workflow Automation, and Customer Document Management""
+Problem:
+The automotive auction company’s auction operations relied heavily on paper-based processes for consignors, bidders,
+vehicle registrations, and supporting auction documentation. Staff spent significant time manually processing forms,
+entering handwritten information, validating data, managing document workflows, tracking incomplete applications, and
+coordinating signatures. Existing processes created operational inefficiencies, limited self-service capabilities, slowed
+
+---
+
+coordinating signatures. Existing processes created operational inefficiencies, limited self-service capabilities, slowed
+customer onboarding, and made it difficult to scale operations as auction volumes increased. The organization also
+needed a flexible solution that could integrate with its core Auctioneer platform, future A5 platform upgrades, and the
+newly established cloud data warehouse.
+Solution:
+BeamData designed and implemented a Digital Document Application using Microsoft Power Platform to modernize and
+automate document-driven auction workflows. The solution leveraged Power Apps, Power Automate, AI Builder,
+Dataverse, Azure services, and integration with Auctioneer to create a low-code digital workflow platform. Key
+
+---
+
+Dataverse, Azure services, and integration with Auctioneer to create a low-code digital workflow platform. Key
+capabilities included AI-powered handwritten form extraction, automated validation rules, digital document
+management, workflow orchestration, customer onboarding support, and integration with enterprise systems through
+APIs and cloud services. The platform was architected as a modular microservices-based ecosystem capable of
+supporting future automation, analytics, and machine learning use cases.
+Results:
+● Digitized Paper-Based Processes: Replaced manual paper processing workflows with digital document capture,
+validation, and submission processes for consignors and bidders.",2.5806643962860107,3,1,0.49999999995,0.0,1.0,0.9979081474861132,0.655187734142081,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How did BeamData address the problem of manual expertise and intuition in marketing and auction planning processes?,AI / data capabilities,hard,Beamdata Past Project Descriptions.pdf,past_projects,,98.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '98', 'chunk_id': '540b5b028abebf2e398a62ced88cbf435b61dc4c'}","BeamData addressed the reliance on manual expertise and intuition by proposing and designing AI-driven sales and marketing optimization tools. These tools used centralized Automotive Auction Company and CCN data to generate actionable recommendations for marketing, auction operations, and customer engagement.","Solution: Twenty-Ten proposed and designed a suite of AI-driven sales and marketing optimization tools that leveraged centralized The Automotive Auction Company and CCN data to generate actionable recommendations for marketing, auction operations, and customer engagement.","BeamData addressed the problem of manual expertise and intuition in marketing and auction planning processes by proposing and designing a suite of AI-driven sales and marketing optimization tools. These tools leveraged centralized data from The Automotive Auction Company and CCN to generate actionable recommendations for marketing, auction operations, and customer engagement. The platform utilized machine learning, predictive modeling, customer segmentation, vehicle segmentation, recommendation engines, and optimization algorithms to support auction planning, thereby enhancing scalability and improving the identification of high-value opportunities across thousands of customers, vehicles, and auction events [1][2].","marketing and auction planning processes relied heavily on manual expertise and intuition, limiting scalability and
+making it difficult to consistently identify the highest-value opportunities across thousands of customers, vehicles, and
+auction events.
+Solution:
+Twenty-Ten proposed and designed a suite of AI-driven sales and marketing optimization tools that leveraged centralized
+The Automotive Auction Company and CCN data to generate actionable recommendations for marketing, auction
+operations, and customer engagement. The platform combined machine learning, predictive modeling, customer
+segmentation, vehicle segmentation, recommendation engines, and optimization algorithms to support auction planning
+
+---
+
+Heading:
+AI-Powered Sales & Marketing Optimization Platform for Automotive Auctions: ""Using Predictive Analytics, Customer
+Intelligence, and Recommendation Engines to Maximize Auction Revenue and Marketing Effectiveness""
+Problem:
+After successfully centralizing auction, customer, and marketing data into a unified platform during Phase 1, The
+Automotive Auction Company sought to move beyond reporting and historical analytics toward predictive and
+prescriptive decision-making. The company wanted to improve vehicle marketing effectiveness, optimize auction docket
+planning, increase bidder engagement, maximize auction profitability, and personalize customer outreach. Existing
+marketing and auction planning processes relied heavily on manual expertise and intuition, limiting scalability and
+
+---
+
+Heading
+Enhancing Forecast Accuracy - Distribution Requirements Planning (DRP)
+Problem:
+The client aimed to improve forecast accuracy and reduce data variability. Challenges included:
+● Over 20% negative quantity shifts in forecasts due to manual errors.
+● Need to address seasonal data trends and anomalies.
+Solution:
+● BeamData implemented a comprehensive strategy to address these challenges, focusing on advanced data
+processing to streamline operations and improve decision-making. Automated ETL processes using SQL Server
+and PowerBI enabled efficient reporting, making data more accessible for regular analysis. Additionally, the team
+applied neural network models combined with KNN for demand forecasting, enhancing accuracy in predicting
+future needs.",4.71890115737915,3,1,0.99999999995,1.0,0.7272727272727273,0.9999999999999142,0.8821249742010895,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What is the purpose of the Women's Health AI Assistant developed by BeamData?,AI / data capabilities,easy,Beamdata Past Project Descriptions.pdf,past_projects,,103.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '103', 'chunk_id': '18fb0be461a8fb24598c9b3d85808c7925043d64'}","The Women's Health AI Assistant was designed to support women's health education, patient engagement, and healthcare navigation through a conversational AI interface.","BeamData developed a conversational AI assistant designed to support women’s health education, patient engagement, and healthcare navigation.","The purpose of the Women's Health AI Assistant developed by BeamData is to support women's health education, enhance patient engagement, and facilitate healthcare navigation. This solution aims to address the challenges women face in accessing reliable, personalized, and timely healthcare information outside of clinical appointments. Additionally, it assists healthcare providers in managing increasing volumes of patient inquiries, onboarding questions, educational content, compliance requirements, and support workflows, all while maintaining strong governance and compliance standards [1][2].","support internal operations, and enhance overall healthcare experiences while maintaining strong governance and
+compliance standards.
+Solution:
+BeamData developed a conversational AI assistant designed to support women’s health education, patient engagement,
+and healthcare navigation. The solution leverages Retrieval-Augmented Generation (RAG), enterprise knowledge
+management, and AI workflow automation to provide contextual, evidence-based responses from approved healthcare
+resources and internal knowledge bases. The platform incorporates intelligent knowledge search, compliance-aware
+information retrieval, automated support capabilities, and analytics dashboards to help both patients and healthcare
+teams access information more efficiently while maintaining operational oversight.
+
+---
+
+Heading:
+Women’s Health AI Assistant: ""Enhancing Patient Support, Knowledge Access, and Care Navigation Through
+Conversational AI""
+Problem:
+Women seeking healthcare information often face challenges accessing reliable, personalized, and timely guidance
+outside of clinical appointments. Healthcare providers must also manage growing volumes of patient inquiries,
+onboarding questions, educational content, compliance requirements, and support workflows. The client sought to
+explore AI-powered solutions that could improve patient engagement, streamline access to trusted health information,
+support internal operations, and enhance overall healthcare experiences while maintaining strong governance and
+compliance standards.
+Solution:
+
+---
+
+BeamData delivers specialized AI training programs for corporate clients across various industries, enhancing workforce capabilities in AI adoption. In healthcare, we partner with [CLIENT_NAME] to train staff in AI for health data management, improving operational efficiency. In research, we collaborate with [CLIENT_NAME] in the UAE, training 400 researchers and guiding 300 capstone projects, resulting in multiple AI research papers. In banking, we upskill teams at [CLIENT_NAME], [CLIENT_NAME], and [CLIENT_NAME] in ML infrastructure and predictive modeling, while for insurance, [CLIENT_NAME] receives training in risk analysis. In telecom, [CLIENT_NAME] benefits from our data analytics training programs.",3.4029812812805176,3,1,0.99999999995,1.0,0.5,0.9999999999999322,0.7895977499303664,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What were the main tasks undertaken by BeamData in developing a Q&A NLP chatbot for The News Company ABC?,past projects,medium,Beamdata Past Project Descriptions.pdf,past_projects,,67.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '67', 'chunk_id': '74b3962005fce4b5302e1eb8feabd59841a1998c'}","BeamData's main tasks included researching NLP and information-retrieval methods, building a financial Q&A dataset, implementing multiple NLP techniques to improve response accuracy, and developing and testing several Q&A models to identify the most effective approach.",Major Tasks: Research: Investigating the most effective NLP techniques and information retrieval methods. Dataset Development: Building a comprehensive dataset of financial questions and answers. NLP Technique Implementation: Applying diverse NLP techniques for improved response accuracy. Modeling: Developing and testing several Q&A models to determine the most effective ones.,"BeamData was tasked with developing a Question and Answer (Q&A) Natural Language Processing (NLP) chatbot for The News Company ABC to enhance user engagement and improve access to financial information. The main tasks undertaken included:
+
+1. **Development of the Chatbot**: BeamData created a chatbot specifically designed to provide accurate answers to common personal finance questions.
+2. **Leveraging Financial Articles**: The chatbot utilized a vast corpus of relevant financial articles to ensure the information provided was accurate and comprehensive.
+3. **Addressing Consumer Challenges**: The project aimed to tackle the challenges consumers face in accessing timely and reliable financial information, which can impact their decision-making processes [1].","Chatbot Development for Personal Finance Queries
+Introduction
+The rise of digital transformation in financial services has highlighted the need for automated solutions to enhance user
+engagement and improve access to financial information. To address this gap, BeamData was tasked with developing a
+Question and Answer (Q&A) Natural Language Processing (NLP) chatbot for The News Company ABC. This chatbot is
+designed to provide accurate answers to common personal finance questions by leveraging a vast corpus of relevant
+financial articles.
+Problem Statement
+Consumers often face challenges in accessing timely and reliable financial information, impacting their decision-making
+processes. Traditional methods, such as relying on financial advisors and customer support, can be expensive and
+
+---
+
+support internal operations, and enhance overall healthcare experiences while maintaining strong governance and
+compliance standards.
+Solution:
+BeamData developed a conversational AI assistant designed to support women’s health education, patient engagement,
+and healthcare navigation. The solution leverages Retrieval-Augmented Generation (RAG), enterprise knowledge
+management, and AI workflow automation to provide contextual, evidence-based responses from approved healthcare
+resources and internal knowledge bases. The platform incorporates intelligent knowledge search, compliance-aware
+information retrieval, automated support capabilities, and analytics dashboards to help both patients and healthcare
+teams access information more efficiently while maintaining operational oversight.
+
+---
+
+Apart from the AI Hub platform which provides a suite of core features such as chat, knowledge base, RAG, and workflow management, BeamData can also help build customized models and infrastructure.",3.5822298526763916,3,1,0.0,0.25,0.8571428571428571,0.7614710879665852,0.6237181067747539,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What challenges did the client face in the development of the health management application and how did BeamData address them?,past projects,hard,Beamdata Past Project Descriptions.pdf,past_projects,,78.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '78', 'chunk_id': 'b43ca1c30c1ebaaaacf3c989cc8797eaffaf029c'}","The client needed to improve a health management application by aggregating and analyzing health-service information from apps integrated with Apple Health. BeamData addressed this by providing insights into the types of health metrics collected, enabling more targeted feature integration and improved user engagement and service delivery.","Problem: Enhance the development of a health management application by systematically aggregating and analyzing health service information from various apps integrated with Apple Health. Solution: Provided comprehensive insights into the types of health metrics collected by these apps, thereby enabling more targeted and effective feature integration for improved user engagement and service delivery in the health management platform.",The knowledge base does not contain sufficient information regarding the specific challenges faced by the client in the development of the health management application or how BeamData addressed those challenges.,"Client Story
+Our Services
+EY
+● Ernst & Young engineering teams had
+challenges with onboarding and
+searching business documents
+● BeamData quickly prototyped and
+Data & AI Proof of
+built a GenAI LLM RAG app that
+Deployment Operations
+Strategy Concepts
+ingested 5000+ files and documents
+allowing rapid Q&A with an AI bot
+Governance Strategy ● The POC continues to be tested and
+used by engineering teams and got
+use case interests from legal and
+accounting business units
+
+---
+
+BeamData delivers specialized AI training programs for corporate clients across various industries, enhancing workforce capabilities in AI adoption. In healthcare, we partner with [CLIENT_NAME] to train staff in AI for health data management, improving operational efficiency. In research, we collaborate with [CLIENT_NAME] in the UAE, training 400 researchers and guiding 300 capstone projects, resulting in multiple AI research papers. In banking, we upskill teams at [CLIENT_NAME], [CLIENT_NAME], and [CLIENT_NAME] in ML infrastructure and predictive modeling, while for insurance, [CLIENT_NAME] receives training in risk analysis. In telecom, [CLIENT_NAME] benefits from our data analytics training programs.
+
+---
+
+Introduction
+
+BeamData is a North American-based Data & AI solutions company
+Corporate Clients
+that provides full lifecycle data and AI services to clients across multiple
+industries.
+
+Full-time Consultants
+(Canada) Whether you are an enterprise that needs help with data strategies or
+in need of project resources to build end-to-end AI and machine
+
+Offshore Team Size
+learning solutions, BeamData will help you tackle the most critical
+(China, Pakistan)
+enterprise business challenges so you can continue your business
+12 vision and mission.
+AI/Governance Advisors
+AI Solutions Beyond Strategy:
+
+Countries our clients in
+Amplifying Value with the Right Expertise
+(U.S., Canada, China, UAE, Saudi, Singapore)",1.7693889141082764,3,0,0.0,0.0,1.0,0.0,0.49686123878162036,
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What were the results of BeamData's project on optimizing data-driven decisions through efficient web scraping?,past projects,medium,Beamdata Past Project Descriptions.pdf,past_projects,,73.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '73', 'chunk_id': 'fd4f4572a23065582629f70efb6c0fd5ebd9008e'}",The project achieved a web-scraping success rate above 95% within the first six months and implemented a hash ID system that reduced EC2 instance and proxy-server costs by 90%.,"Results: Achieved a web scraping success rate exceeding 95% within the first six months, with ongoing enhancements. Implemented the hash ID system, resulting in a 90% cost reduction in EC2 instance usage and proxy server expenses.",The knowledge base does not contain sufficient information regarding the specific results of BeamData's project on optimizing data-driven decisions through efficient web scraping.,"WCC - Cost-Effective and Rapid Web Scraping Solutions
+Heading:
+“Optimizing Data-Driven Decisions Through Efficient Web Scraping”
+Problem：
+The client's existing web scraping solution was costly and slow, hindering their ability to provide timely and
+comprehensive data for a user-friendly web platform. They required a more efficient and economical solution to gather
+detailed analytics on product pricing, popularity, and other key metrics to aid in consumer purchase decisions.
+Solution:
+● Developed robust data pipelines using Airflow to automate web scraping from over 20 diverse sources, with the
+capability for further expansion.
+● Implemented a redundant data architecture on AWS to ensure data integrity and constant availability.
+
+---
+
+reliable. Security protocols were established to safeguard data integrity, preventing unauthorized access and
+data corruption. For forecasting with precision, BeamData utilized Decision Tree Regressor models, which
+allowed for more accurate predictions and supported strategic planning based on reliable data insights.
+Result:
+● Significant reduction in data variability across deliveries.
+● Exclusion of outdated and seasonal anomalies for cleaner data insights.
+● Development of new forecasting methodologies to strengthen future resilience.
+Tech Tools:
+● SQL Server
+● PowerBI
+● Python
+○ KNN, GridSearch, LIME
+● TensorFlow
+
+---
+
+BeamData has delivered transformative AI projects, including a ScaleAI-funded initiative for The Globe and Mail, where we enhanced their digital subscription platform with AI-driven content recommendations and personalization. Utilizing natural language processing (NLP) and ML infrastructure optimization, we improved user engagement with secure, user-focused AI solutions. In the healthcare sector, we consulted for startups, developing AI tools for patient data analysis and predictive modeling. These projects employed NLP and predictive algorithms to streamline diagnostics and improve scalability, supporting [CLIENT_NAME]’s needs for research-focused AI applications and data analysis services.",1.9149091243743896,3,0,0.0,0.0,0.5,0.0,0.21140498792621534,
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What strategic roadmap did Beamdata define for future model fine-tuning initiatives?,past projects,medium,Beamdata Past Project Descriptions.pdf,past_projects,,109.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '109', 'chunk_id': '8aafd458da14c31cd1dfb87e2459754038f78e4a'}","BeamData defined a future-ready personalization roadmap covering adaptive routing, clinician-specific preferences, and future model fine-tuning initiatives, while maintaining safety and governance controls.","● Future-Ready Personalization Roadmap: Defined a strategic roadmap for adaptive routing, clinician-specific preferences, and future model fine-tuning initiatives while maintaining safety and governance controls.","BeamData defined a strategic roadmap for future model fine-tuning initiatives that includes adaptive routing, clinician-specific preferences, and the maintenance of safety and governance controls. This roadmap aims to ensure that future AI adoption is aligned with organizational needs and regulatory requirements [1].","● Continuous Evaluation Infrastructure: Delivered an internal evaluation console, reusable datasets, scoring
+rubrics, and benchmarking assets to support ongoing model assessment and future AI adoption.
+● Future-Ready Personalization Roadmap: Defined a strategic roadmap for adaptive routing, clinician-specific
+preferences, and future model fine-tuning initiatives while maintaining safety and governance controls.
+
+---
+
+reliable. Security protocols were established to safeguard data integrity, preventing unauthorized access and
+data corruption. For forecasting with precision, BeamData utilized Decision Tree Regressor models, which
+allowed for more accurate predictions and supported strategic planning based on reliable data insights.
+Result:
+● Significant reduction in data variability across deliveries.
+● Exclusion of outdated and seasonal anomalies for cleaner data insights.
+● Development of new forecasting methodologies to strengthen future resilience.
+Tech Tools:
+● SQL Server
+● PowerBI
+● Python
+○ KNN, GridSearch, LIME
+● TensorFlow
+
+---
+
+- Dynamic model switching
+ - To decide the best model for a given task, task-specific evaluation dataset needs to be created and constantly updated. BeamData can help with custom EVAL dataset creation and benchmarking
+ - The dataset can then be uploaded to the AI Hub for automatic benchmarking and model comparison
+- Domain adaptation of LLMs
+ - Model finetuning requires special skillsets. BeamData can help different departments build fine-tuned LLMs for domain adaptation.
+ - We can help fine-tune both LLMs and embeddings.
+- Custom RAG tuning and data ingestion",2.5898818969726562,3,1,0.9999999999,1.0,0.6666666666666666,0.980837676574804,0.7861250341008608,0.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How does Beamdata's AI-enabled Learning Management System enhance learner engagement?,higher education experience,medium,Beamdata Past Project Descriptions.pdf,past_projects,,111.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '111', 'chunk_id': '62589c24307c5214440c63aee4a1d3fddebbf545'}","The AI-enabled LMS enhances engagement through content generation, learning assistants, teaching-plan management, and AI-powered project mentoring, improving both learner engagement and instructional efficiency.","content generation, learning assistants, teaching plan management, and AI-powered project mentoring enhance both learner engagement and instructional efficiency.","BeamData's AI-enabled Learning Management System (LMS) enhances learner engagement through several innovative features. The platform includes interactive learning content and real-time communication tools, which facilitate active participation and collaboration among learners. Additionally, it offers Capstone Project Workspaces and Q&A Boards that encourage peer interaction and practical application of knowledge, further enriching the learning experience [3]. 
+
+Moreover, the integration of AI capabilities such as content generation and learning assistants provides personalized learning pathways, catering to individual learner needs and preferences. This tailored approach helps maintain learner interest and motivation, ultimately leading to improved engagement and outcomes [3].","BeamData Ltd. brings extensive expertise in AI training and upskilling, delivering hands-on programs that equip participants with practical skills in data science, machine learning (ML), and generative AI. With over 9 years of team experience, we have trained thousands of professionals, students, and researchers across diverse sectors, including higher education, government, and enterprise. Our training initiatives focus on real-world applications, leveraging platforms like Learning Management Systems (LMS) to enhance learning outcomes, preparing participants to adopt AI technologies effectively in academic and professional settings.
+
+---
+
+In software development, BeamData has delivered innovative platforms tailored to [CLIENT_NAME] needs. For WeCloudData, since 2016, we developed a Learning Management System (LMS) with generative AI for personalized assessments, content recommendations, and instructor dashboards, serving thousands of global learners and aligning with USask’s LMS integration goals. For [PERSON_NAME], we implemented an Azure AI-based solution for document intelligence, automating data extraction from application forms and reducing processing time by 40%. These projects showcase our expertise in building scalable, AI-driven software solutions that enhance operational efficiency and user experience, directly applicable to USask’s technical and academic requirements.
+
+---
+
+training programs across multiple regions while maintaining a consistent learning experience.
+Solution:
+WeCloudData developed a next-generation, AI-enabled Learning Management System (LMS) designed for higher
+education, professional training, and workforce development programs. The platform supports both cloud and
+on-premise deployment models and features a multi-tenant architecture for serving multiple institutions from a single
+platform. Beyond traditional LMS functionality, the solution includes Capstone Project Workspaces, Q&A Boards,
+real-time communication tools, interactive learning content, and integrated collaboration features. AI capabilities such as
+content generation, learning assistants, teaching plan management, and AI-powered project mentoring enhance both",3.1001007556915283,3,2,0.3333333333,1.0,0.42105263157894735,0.999999999999894,0.7510437901138673,0.5
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What deployment models does Beamdata's AI Hub support?,AI / data capabilities,easy,Beamdata Past Project Descriptions.pdf,past_projects,,113.0,"{'source': 'Beamdata Past Project Descriptions.pdf', 'doc_type': 'past_projects', 'section': '', 'page': '113', 'chunk_id': '9d8228d06a3f51ce209eaa0b0e85eb55a5513188'}","BeamData's AI Hub supports both cloud and on-premise deployments. The platform also includes a Model Hub for multiple LLM providers, a Data Hub for enterprise knowledge sources, and built-in security and governance controls.","The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and on-premise deployments.","BeamData's AI Hub supports both cloud and on-premise deployment models. This flexibility allows organizations to build, deploy, and manage AI-powered assistants, knowledge systems, and business automation workflows through a unified platform, without being tied to a single AI vendor or infrastructure provider [2][3].","The AI Hub supports the following AI infrastructure:
+
+- GPU services
+- Vector database deployment
+- LLM self-hosting and inference
+- Governance and guardrails
+- Context and memory management
+
+If [CLIENT_NAME] prefers to host their own open-weights LLMs such as Llama, deepseek, or mistral, BeamData has the ability to do that. We can help deploy a ray-cluster for fast LLM inference and the ray cluster and kuberay can help scale the services easily. The self-hosted LLMs and GPUs can be deployed on-premise via Kubernetes as well.
+
+If the client prefers a given Cloud provider, we can work with the provider’s PaaS tools such as Amazon’s Bedrock or Azure OpenAI for model hosting.
+
+---
+
+Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+Retrieval-Augmented Generation (RAG), AI agents, workflow automation, and low-code/no-code application
+development capabilities. The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for
+managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and
+on-premise deployments. AI Hub enables organizations to build, deploy, and manage AI-powered assistants, knowledge
+systems, and business automation workflows through a unified platform.
+Results:
+● Model-Agnostic Architecture: Enables organizations to switch between multiple AI models and providers
+without application redesign, reducing vendor lock-in.
+
+---
+
+Heading:
+AI Hub Enterprise Agent Platform: ""A Model-Agnostic AI Operating System for Enterprise Knowledge, Automation, and
+Agentic Workflows""
+Problem:
+Many enterprises face challenges adopting AI at scale due to fragmented tools, vendor lock-in, security concerns, and the
+need to support both cloud and on-premise deployments. Organizations require a flexible AI platform that can integrate
+with multiple foundation models, securely leverage internal knowledge, automate business processes, and enable rapid
+development of AI applications without being tied to a single AI vendor or infrastructure provider.
+Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,",3.649444103240967,3,1,0.5833333333041666,1.0,1.0,0.999999999999902,0.933954555942395,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What is Beamdata's approach to AI strategy and governance?,proposal-style questions,medium,Beam Data AI Hub Intro.pptx (1).pdf,company_intro,,14.0,"{'source': 'Beam Data AI Hub Intro.pptx (1).pdf', 'doc_type': 'company_intro', 'section': '', 'page': '14', 'chunk_id': '64106832268d68c000b4cf662ea27750c5eb7ac7'}","BeamData's approach includes AI literacy training, use-case exploration and prioritization, data and AI system design, proof-of-deployment operations, and governance-framework planning.",We help you build data & AI strategies via ● AI literacy training Data & AI Proof of Deployment Operations ● Use case exploration ● Use case prioritization ● Data & AI system design Governance Strategy ● Governance framework planning,The knowledge base does not contain sufficient information regarding BeamData's specific approach to AI strategy and governance.,"Introduction
+
+BeamData is a North American-based Data & AI solutions company
+Corporate Clients
+that provides full lifecycle data and AI services to clients across multiple
+industries.
+
+Full-time Consultants
+(Canada) Whether you are an enterprise that needs help with data strategies or
+in need of project resources to build end-to-end AI and machine
+
+Offshore Team Size
+learning solutions, BeamData will help you tackle the most critical
+(China, Pakistan)
+enterprise business challenges so you can continue your business
+12 vision and mission.
+AI/Governance Advisors
+AI Solutions Beyond Strategy:
+
+Countries our clients in
+Amplifying Value with the Right Expertise
+(U.S., Canada, China, UAE, Saudi, Singapore)
+
+---
+
+BeamData Ltd. has delivered over 30 AI and data projects globally, demonstrating our expertise in executing high-impact solutions tailored to diverse sectors, including education, media, and healthcare. Our project delivery approach integrates strategic consulting, advanced machine learning (ML) techniques, and robust data engineering to meet [CLIENT_NAME] needs. With a team averaging 9 years of experience in AI and data science, we have successfully implemented projects that enhance operational efficiency, user engagement, and academic outcomes, positioning us to deliver a scalable, secure AI platform for the University of Saskatchewan’s approximately 25,000 students and 5,000 faculty and staff.
+
+---
+
+BeamData Ltd. is committed to embedding sustainability into our corporate practices and the delivery of the [CLIENT_NAME]’s generative AI platform, reflecting [CLIENT_NAME]’s dedication to environmental, social, ethical, and economic principles.",2.1690921783447266,3,0,0.0,0.0,1.0,0.0,0.5587630972007965,
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How does Beamdata ensure the scalability of its AI solutions for higher education institutions?,tender scope capability summaries,hard,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,02 Examples of Past Work Aligned to Requirements > 2.2 Enterprise Product Experience,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '02 Examples of Past Work Aligned to Requirements > 2.2 Enterprise Product Experience', 'page': '', 'chunk_id': '010e06ca82df2595993f91ba94f4f65cbcdc8f42'}","BeamData supports scalability by building AI products for educational and enterprise needs that are designed to be scalable, secure, and integrated for higher education environments.","Beam Data Ltd. specializes in developing AI products that address educational and enterprise needs, delivering scalable, secure, and integrated solutions for higher education institutions like [CLIENT_NAME].","BeamData Ltd. ensures the scalability of its AI solutions for higher education institutions through several key strategies. First, the company specializes in developing integrated solutions that are designed to meet the specific needs of educational environments, such as the AI Hub, which automates workflows and enhances operational efficiency [1]. Additionally, BeamData has a proven track record of delivering over 30 AI and data projects globally, which demonstrates their capability to execute high-impact solutions tailored to diverse sectors, including education [2]. 
+
+Moreover, the company employs advanced machine learning techniques and robust data engineering practices, which are essential for creating scalable AI platforms that can accommodate the needs of large user bases, such as the University of Saskatchewan's approximately 25,000 students and 5,000 faculty and staff [2]. This combination of tailored solutions, extensive project experience, and technical expertise positions BeamData to effectively deliver scalable and secure AI solutions for higher education institutions.","BeamData Ltd. specializes in developing AI products that address educational and enterprise needs, delivering scalable, secure, and integrated solutions for higher education institutions like [CLIENT_NAME]. Our portfolio includes proprietary platforms like the AI Hub, which automates workflows, and specialized edtech tools that enhance teaching, learning, and administration. Drawing on our experience with WeCloudData’s LMS, the AI71 Academy’s learning portal, and the Galaxy app for school administration, we have created AI-driven products for content creation, personalized learning, and operational efficiency. These products integrate seamlessly with systems like Canvas and Ellucian Banner, supporting [CLIENT_NAME]’s requirements for AI model customization and data analysis
+
+---
+
+BeamData Ltd. has delivered over 30 AI and data projects globally, demonstrating our expertise in executing high-impact solutions tailored to diverse sectors, including education, media, and healthcare. Our project delivery approach integrates strategic consulting, advanced machine learning (ML) techniques, and robust data engineering to meet [CLIENT_NAME] needs. With a team averaging 9 years of experience in AI and data science, we have successfully implemented projects that enhance operational efficiency, user engagement, and academic outcomes, positioning us to deliver a scalable, secure AI platform for the University of Saskatchewan’s approximately 25,000 students and 5,000 faculty and staff.
+
+---
+
+BeamData Ltd., established in 2015, in partnership with WeCloudData, founded in 2016, excels as a product and service-focused organization with deep expertise in educational technology (edtech) and artificial intelligence (AI) solutions, tailored for complex environments like higher education.",5.281399965286255,3,3,0.99999999995,1.0,0.7777777777777778,0.9706398497441645,0.8662373348948493,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What are the unique features of Beamdata's AI Hub platform?,industry-specific capabilities from tender scopes,medium,Beam Data AI Hub Intro.pptx (1).pdf,company_intro,,12.0,"{'source': 'Beam Data AI Hub Intro.pptx (1).pdf', 'doc_type': 'company_intro', 'section': '', 'page': '12', 'chunk_id': 'be5674d21262e48187709d9b1294b823cff8f9dd'}","The AI Hub's unique features include flexible deployment options, vertical workflows built for business teams, enterprise data connectors, SQL agents for self-serve BI, model evaluation and fine-tuning support, integration with existing ML platforms such as SageMaker and Azure, prebuilt AI workflow playbooks, and deep vertical integration through customization.","Unique Features Platform/Framework Vertical Workflows built Data Hub Model Hub & Integration Agnostic for business teams ● Flexible deployment options ● Data connectors hooked to ● Allows for deep integration ● Built with end users (both for different clients different Enterprise systems with tech teams for model business and IT) in mind, ● Not locked into any (SAP, Salesforce, MES, etc.) evaluation, fine-tuning, and empowering business users frameworks, adaptive to ● SQL Agents connected to deployment to maximize AI adoption technology trends database systems for ● Integration with existing ML ● Prebuilt playbooks to get self-serve BI platforms such as started with AI workflows Sagemaker, Azure, etc. quickly ● Deep vertical integration via FDE customization","BeamData's AI Hub platform offers several unique features that enhance its functionality and usability:
+
+1. **Model-Agnostic Architecture**: This allows organizations to switch between multiple AI models and providers without the need for application redesign, thereby reducing vendor lock-in [3].
+
+2. **Comprehensive Suite of Core Features**: The platform includes essential features such as chat, knowledge base, Retrieval-Augmented Generation (RAG), and workflow management [1].
+
+3. **Integration Capabilities**: AI Hub supports low-code/no-code application development, enabling users to create and manage AI-powered assistants and business automation workflows easily [3].
+
+4. **Data Hub**: This feature manages enterprise knowledge sources effectively, ensuring that organizations can leverage their data efficiently [3].
+
+5. **Security and Governance Controls**: Built-in security measures and governance controls help organizations maintain compliance and protect sensitive information [3].
+
+6. **Deployment Flexibility**: AI Hub supports both cloud and on-premise deployments, providing organizations with the flexibility to choose their preferred infrastructure [3].
+
+These features collectively make BeamData's AI Hub a robust platform for organizations looking to implement AI solutions effectively.","Apart from the AI Hub platform which provides a suite of core features such as chat, knowledge base, RAG, and workflow management, BeamData can also help build customized models and infrastructure.
+
+---
+
+**4.4.2 AI Workflow Tool Development &amp; Integration**
+
+Each university has its own unique workflows when it comes to student admission, HR, operations, course design, and teaching. While BeamData’s AI Hub provides standard workflow automation features, more complex workflows will require customized services. BeamData has the experience and expertise to help [CLIENT_NAME] turn existing workflows into AI-based automation so the user experience is less impacted by the introduction of new tools.
+
+---
+
+Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+Retrieval-Augmented Generation (RAG), AI agents, workflow automation, and low-code/no-code application
+development capabilities. The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for
+managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and
+on-premise deployments. AI Hub enables organizations to build, deploy, and manage AI-powered assistants, knowledge
+systems, and business automation workflows through a unified platform.
+Results:
+● Model-Agnostic Architecture: Enables organizations to switch between multiple AI models and providers
+without application redesign, reducing vendor lock-in.",6.478391170501709,3,6,0.0,0.0,0.8,0.9980120897050059,0.7486066070728358,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What experience does Beamdata have in collaborating with universities for AI training programs?,higher education experience,medium,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,02 Examples of Past Work Aligned to Requirements > 2.4 Training Experience > 2.4.1 Collaboration with Universities & Academies,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '02 Examples of Past Work Aligned to Requirements > 2.4 Training Experience > 2.4.1 Collaboration with Universities & Academies', 'page': '', 'chunk_id': 'e5081be2f9de5cadeb8c0343a783f9bca121bca9'}",BeamData has collaborated with Singapore Management University to prototype an AI-enhanced e-learning platform. It also worked in Saudi Arabia with a client to integrate e-learning platforms with AI tools and with the Saudi Digital Academy to develop AI assessment training.,"Internationally, we partnered with Singapore Management University to prototype an e-learning platform, integrating AI for enhanced learning experiences. In Saudi Arabia, we collaborated with the [CLIENT_NAME] to integrate e-learning platforms with AI tools, and with the Saudi Digital Academy to develop AI assessment training.","BeamData has established strong partnerships with universities and academies to deliver tailored AI training programs that support educational and research goals. Since 2020, BeamData has collaborated with a specific client in Canada to offer the Applied Data Science and Big Data program, which trains professionals in AI-enhanced data engineering. Additionally, BeamData works with another client on governance and data analytics training, focusing on public sector applications. The company provides comprehensive Learning Management System (LMS)-based courses in AI and machine learning (ML), serving thousands of learners globally [2].","BeamData Ltd. brings extensive expertise in AI training and upskilling, delivering hands-on programs that equip participants with practical skills in data science, machine learning (ML), and generative AI. With over 9 years of team experience, we have trained thousands of professionals, students, and researchers across diverse sectors, including higher education, government, and enterprise. Our training initiatives focus on real-world applications, leveraging platforms like Learning Management Systems (LMS) to enhance learning outcomes, preparing participants to adopt AI technologies effectively in academic and professional settings.
+
+---
+
+BeamData, partnered with WeCloudData has established strong partnerships with universities and academies to deliver tailored AI training programs that support educational and research goals.
+
+In Canada, we have collaborated with the [CLIENT_NAME] since 2020, offering the Applied Data Science and Big Data program to train professionals in AI-enhanced data engineering. We also work with the [CLIENT_NAME] on governance and data analytics training, focusing on public sector applications. We provide comprehensive LMS-based courses in AI and ML, serving thousands of learners globally.
+
+---
+
+BeamData delivers specialized AI training programs for corporate clients across various industries, enhancing workforce capabilities in AI adoption. In healthcare, we partner with [CLIENT_NAME] to train staff in AI for health data management, improving operational efficiency. In research, we collaborate with [CLIENT_NAME] in the UAE, training 400 researchers and guiding 300 capstone projects, resulting in multiple AI research papers. In banking, we upskill teams at [CLIENT_NAME], [CLIENT_NAME], and [CLIENT_NAME] in ML infrastructure and predictive modeling, while for insurance, [CLIENT_NAME] receives training in risk analysis. In telecom, [CLIENT_NAME] benefits from our data analytics training programs.",4.538017511367798,3,1,0.0,0.0,1.0,0.8011963918209252,0.74169050576281,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How does Beamdata's AI Hub platform support agentic workflows?,AI / data capabilities,easy,Beam Data AI Hub Intro.pptx (1).pdf,company_intro,,9.0,"{'source': 'Beam Data AI Hub Intro.pptx (1).pdf', 'doc_type': 'company_intro', 'section': '', 'page': '9', 'chunk_id': '96dafa235aee8b58a833efe98afa5a1c6aeaa277'}","The AI Hub supports agentic workflows by combining an assistant, a knowledge hub, and visual agent orchestration to automate task responses, centralize data/documents/project intelligence, and enable end-to-end business automation.","Introducing our AI Hub Assistant Knowledge Hub Agentic Workflow Automates task responses and Centralizes data, documents, End-to-end business automation knowledge queries and project intelligence through visual agent orchestration","BeamData's AI Hub platform supports agentic workflows by providing a model-agnostic enterprise AI platform that enables organizations to build, deploy, and manage AI-powered assistants and business automation workflows through a unified interface. This platform allows users to launch custom chat assistants and create tailored agentic workflows, facilitating the automation of various business processes while securely leveraging internal knowledge sources [1][3]. 
+
+Additionally, the AI Hub's architecture enables organizations to switch between multiple AI models and providers without the need for application redesign, which enhances flexibility and reduces vendor lock-in [1][2]. This capability is crucial for organizations looking to adopt AI at scale and integrate various tools and models into their workflows [2].","Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+Retrieval-Augmented Generation (RAG), AI agents, workflow automation, and low-code/no-code application
+development capabilities. The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for
+managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and
+on-premise deployments. AI Hub enables organizations to build, deploy, and manage AI-powered assistants, knowledge
+systems, and business automation workflows through a unified platform.
+Results:
+● Model-Agnostic Architecture: Enables organizations to switch between multiple AI models and providers
+without application redesign, reducing vendor lock-in.
+
+---
+
+Heading:
+AI Hub Enterprise Agent Platform: ""A Model-Agnostic AI Operating System for Enterprise Knowledge, Automation, and
+Agentic Workflows""
+Problem:
+Many enterprises face challenges adopting AI at scale due to fragmented tools, vendor lock-in, security concerns, and the
+need to support both cloud and on-premise deployments. Organizations require a flexible AI platform that can integrate
+with multiple foundation models, securely leverage internal knowledge, automate business processes, and enable rapid
+development of AI applications without being tied to a single AI vendor or infrastructure provider.
+Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+
+---
+
+<!-- image -->
+
+AI Hub solution proposal for [CLIENT_NAME]
+
+The proposed solution centralizes infrastructure management, model deployment and inference, has a transparent pricing which is usage-based, and allows staff, faculty and researchers to launch custom chat assistants and build custom agentic workflows.
+
+We call this BeamData’s AI Hub. Let’s take a look at a few examples of how AI Hub can be used by end users in different roles.
+
+**AI Hub for Admission Office**",3.9998433589935303,3,3,0.0,1.0,0.9090909090909091,0.7908667757892419,0.7944175697874138,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What is Beamdata's approach to managing AI project risks?,proposal-style questions,medium,Beam Data AI Hub Intro.pptx (1).pdf,company_intro,,15.0,"{'source': 'Beam Data AI Hub Intro.pptx (1).pdf', 'doc_type': 'company_intro', 'section': '', 'page': '15', 'chunk_id': '29f790aa11e1e0b5924cbd02624a6ea9770c50d3'}","BeamData manages AI project risk through rapid prototyping and POCs: build fast, keep the business involved in design and prototyping, gather faster feedback, and decide which concepts are impactful enough to develop and deploy to production.",Quick Prototyping & POC Our Services We help build rapid prototypes and decide the most impactful ones to develop and deploy to production. Data & AI Proof of Deployment Operations ● Build fast to win fast Strategy Concepts ● Keep business in the design and prototype process Governance Strategy ● Get faster feedback and lower the project risk,The knowledge base does not contain sufficient information regarding BeamData's approach to managing AI project risks.,"BeamData Ltd. has delivered over 30 AI and data projects globally, demonstrating our expertise in executing high-impact solutions tailored to diverse sectors, including education, media, and healthcare. Our project delivery approach integrates strategic consulting, advanced machine learning (ML) techniques, and robust data engineering to meet [CLIENT_NAME] needs. With a team averaging 9 years of experience in AI and data science, we have successfully implemented projects that enhance operational efficiency, user engagement, and academic outcomes, positioning us to deliver a scalable, secure AI platform for the University of Saskatchewan’s approximately 25,000 students and 5,000 faculty and staff.
+
+---
+
+Introduction
+
+BeamData is a North American-based Data & AI solutions company
+Corporate Clients
+that provides full lifecycle data and AI services to clients across multiple
+industries.
+
+Full-time Consultants
+(Canada) Whether you are an enterprise that needs help with data strategies or
+in need of project resources to build end-to-end AI and machine
+
+Offshore Team Size
+learning solutions, BeamData will help you tackle the most critical
+(China, Pakistan)
+enterprise business challenges so you can continue your business
+12 vision and mission.
+AI/Governance Advisors
+AI Solutions Beyond Strategy:
+
+Countries our clients in
+Amplifying Value with the Right Expertise
+(U.S., Canada, China, UAE, Saudi, Singapore)
+
+---
+
+BeamData delivers specialized AI training programs for corporate clients across various industries, enhancing workforce capabilities in AI adoption. In healthcare, we partner with [CLIENT_NAME] to train staff in AI for health data management, improving operational efficiency. In research, we collaborate with [CLIENT_NAME] in the UAE, training 400 researchers and guiding 300 capstone projects, resulting in multiple AI research papers. In banking, we upskill teams at [CLIENT_NAME], [CLIENT_NAME], and [CLIENT_NAME] in ML infrastructure and predictive modeling, while for insurance, [CLIENT_NAME] receives training in risk analysis. In telecom, [CLIENT_NAME] benefits from our data analytics training programs.",1.83255934715271,3,0,0.0,0.0,1.0,0.0,0.5762901827774586,
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What are the key components of Beamdata's AI Hub architecture?,AI / data capabilities,hard,Beam Data AI Hub Intro.pptx (1).pdf,company_intro,,10.0,"{'source': 'Beam Data AI Hub Intro.pptx (1).pdf', 'doc_type': 'company_intro', 'section': '', 'page': '10', 'chunk_id': 'fbe72f35f6ef844c2f7bc29629001d289a51a2b3'}","The AI Hub architecture includes business hubs such as EDU Hub and MFG Hub, Assistant, Knowledge Hub, Agentic Workflow, IT/Data/AI capabilities, Model Hub, Agent Hub, Infrastructure Hub, and Data Hub. It integrates model providers such as OpenAI, Gemini, and DeepSeek; agent frameworks such as LangGraph and Haystack; and data platforms such as Databricks and Snowflake into a unified stack from infrastructure to workflow automation.","AI Hub Architecture: Platform Depth Business HubEDU HubMFG Assistant Knowledge Hub Agentic Workflow IT/Data/AI Model Hub Agent Hub Infra Hub Data Hub OpenAI, Gemini Langgraph Databricks Deepseek, etc. Haystack, etc. Snowflake, etc. A unified stack from infrastructure to workflow automation.","The key components of BeamData's AI Hub architecture include:
+
+1. **Model Hub**: This component connects to multiple large language model (LLM) providers, allowing organizations to switch between different AI models without needing to redesign applications, thereby reducing vendor lock-in [2].
+
+2. **Data Hub**: This component is responsible for managing enterprise knowledge sources, ensuring that data is organized and accessible for AI applications [2].
+
+3. **Conversational AI**: The platform includes capabilities for building AI-powered assistants that can engage in natural language conversations [2].
+
+4. **Retrieval-Augmented Generation (RAG)**: This feature enhances the AI's ability to generate responses by retrieving relevant information from knowledge sources [2].
+
+5. **AI Agents**: These are automated entities that can perform tasks or provide information based on user interactions [2].
+
+6. **Workflow Automation**: The platform supports the automation of business processes, streamlining operations and improving efficiency [2].
+
+7. **Low-Code/No-Code Application Development**: This capability allows users to create applications with minimal coding, making it accessible for non-technical users [2].
+
+8. **Security and Governance Controls**: Built-in features ensure that the AI applications comply with security and governance standards [2].
+
+9. **Deployment Options**: The AI Hub supports both cloud and on-premise deployments, providing flexibility based on organizational needs [2].
+
+10. **Centralized Logging, Monitoring, Analytics, and Compliance Management**: These components help manage the AI solutions end-to-end, ensuring effective oversight and compliance [3].
+
+These components work together to provide a comprehensive solution for managing AI infrastructure and applications.","Apart from the AI Hub platform which provides a suite of core features such as chat, knowledge base, RAG, and workflow management, BeamData can also help build customized models and infrastructure.
+
+---
+
+Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+Retrieval-Augmented Generation (RAG), AI agents, workflow automation, and low-code/no-code application
+development capabilities. The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for
+managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and
+on-premise deployments. AI Hub enables organizations to build, deploy, and manage AI-powered assistants, knowledge
+systems, and business automation workflows through a unified platform.
+Results:
+● Model-Agnostic Architecture: Enables organizations to switch between multiple AI models and providers
+without application redesign, reducing vendor lock-in.
+
+---
+
+In this response to the RFP, BeamData would like to propose the adoption of our AI Hub platform and other services that can help effectively address the above pain points. In Section 4.2 to 4.6, we will propose the services in detail. In this section, we will provide a high-level overview of our AI Hub’s capabilities and its relevance to the RFP requirements.
+
+The solution we’d like to propose is a centralized AI Hub platform that helps [CLIENT_NAME] manage the solutions end-to-end from AI infrastructure and framework management, model customization, to applications such as Chat, knowledge base, and workflow, as well as centralized logging, monitoring, analytics, and compliance management. To explain the vision, below is the highlight architecture diagram of BeamData’s AI Hub.",6.325714349746704,3,10,0.0,0.0,0.45454545454545453,0.9999999999999014,0.692676231729645,0.9
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What are the main pain points identified in the current AI service management at the university?,higher education experience,medium,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.1 Pain Points & Proposed Solutions,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.1 Pain Points & Proposed Solutions', 'page': '', 'chunk_id': 'c36cf617246c5ed5177dc66891e6dbedb0ba3d09'}","The main pain points are compliance and governance risks from decentralized AI use, potential upload of sensitive student PII to external AI providers, risk of data leakage or provider model training on university data, lack of best practices and knowledge sharing, limited activity logging and usage insights, difficulty tracking productivity gains, and poor cost optimization.","- Compliance risks and governance - Since there’s no centralized governance, the university is running the risk of staff uploading sensitive data such as student PII to the AI service providers such as OpenAI, Anthropic, etc. - Data leakage and university data being used by AI providers for model training can pose significant reputational risk to [CLIENT_NAME]. - Lack of best practices - There’s a lack of best practices and knowledge sharing among faculty and staff and therefore the degree of productivity gain via AI services is not trackable - There’s not a good way of standardizing best practices without proper activity logging and usage insights - Poor cost optimization","The main pain points identified in the current AI service management at the university include:
+
+1. **Compliance Risks and Governance**: There is no centralized governance, leading to risks of staff uploading sensitive data, such as student personally identifiable information (PII), to AI service providers. This situation poses significant reputational risks due to potential data leakage and misuse of university data for model training by AI providers [2].
+
+2. **Lack of Best Practices**: There is a deficiency in best practices and knowledge sharing among faculty and staff, which results in untrackable productivity gains from AI services. The absence of standardized best practices is compounded by inadequate activity logging and usage insights [2].
+
+3. **Poor Cost Optimization**: The current decentralized management of AI services leads to inefficiencies and missed opportunities for cost optimization [2][3].
+
+4. **Decentralized Management**: The lack of centralized management means that staff, faculty, and students independently subscribe to various AI tools and services, which, while functional, introduces serious risks and inefficiencies [3].","**AI Hub for Admission Office**
+
+- Pain points
+ - Dealing with many students’ inquiries
+ - Each student need to track the states in the admission pipeline
+ - File processing is a pain
+ - Email responses are slow
+ - Takes time to retrieve an individual student’s profile information
+ - Payment and refund status tracking is time-consuming
+- How AI Hub addresses the challenges
+ - Payment and refund status lookup by AI text-to-sql queries
+ - Communication email auto-categorization
+ - Email drafting by AI based on system and user prompts for each scenario
+ - Integration with existing tools and systems
+ - Knowledge base about the admission policies for Q and A
+ - Comparing documents using AI
+
+**AI Hub for Human Resource**
+
+---
+
+- Compliance risks and governance
+ - Since there’s no centralized governance, the university is running the risk of staff uploading sensitive data such as student PII to the AI service providers such as OpenAI, Anthropic, etc.
+ - Data leakage and university data being used by AI providers for model training can pose significant reputational risk to [CLIENT_NAME].
+- Lack of best practices
+ - There’s a lack of best practices and knowledge sharing among faculty and staff and therefore the degree of productivity gain via AI services is not trackable
+ - There’s not a good way of standardizing best practices without proper activity logging and usage insights
+- Poor cost optimization
+
+---
+
+Currently there is no centralized management of AI services and products, therefore staff, faculty, and students subscribe to their own AI tools and services. This approach works however it poses serious risks and can be optimized for the following reasons.",4.6296656131744385,3,4,0.49999999995,1.0,0.9333333333333333,0.9999999999998979,0.7932662196904413,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How does the proposed AI Hub platform address the challenges faced by the university's Admission Office?,product capabilities,medium,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.1 Pain Points & Proposed Solutions,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.1 Pain Points & Proposed Solutions', 'page': '', 'chunk_id': '4a9800240b4e5b3ac55dcd90713d6a6a312368f1'}","The AI Hub addresses Admission Office challenges with AI text-to-SQL for payment and refund lookup, communication email auto-categorization, AI-assisted email drafting based on system and user prompts, integration with existing tools, an admissions-policy knowledge base for Q&A, and AI-based document comparison.",**AI Hub for Admission Office** - Pain points - Dealing with many students’ inquiries - Each student need to track the states in the admission pipeline - File processing is a pain - Email responses are slow - Takes time to retrieve an individual student’s profile information - Payment and refund status tracking is time-consuming - How AI Hub addresses the challenges - Payment and refund status lookup by AI text-to-sql queries - Communication email auto-categorization - Email drafting by AI based on system and user prompts for each scenario - Integration with existing tools and systems - Knowledge base about the admission policies for Q and A - Comparing documents using AI,"The proposed AI Hub platform addresses the challenges faced by the university's Admission Office through several key features:
+
+1. **Payment and Refund Status Lookup**: The AI Hub utilizes text-to-SQL queries to streamline the lookup process for payment and refund statuses, making it more efficient for staff to access this information.
+
+2. **Email Management**: The platform enhances communication by auto-categorizing emails and drafting responses based on system and user prompts tailored to specific scenarios. This reduces the time spent on email responses.
+
+3. **Integration with Existing Tools**: The AI Hub is designed to integrate seamlessly with the university's existing tools and systems, facilitating a smoother workflow.
+
+4. **Knowledge Base**: It provides a comprehensive knowledge base regarding admission policies, enabling quick and accurate responses to inquiries.
+
+5. **Document Comparison**: The AI Hub includes capabilities for comparing documents using AI, which can assist in processing applications more efficiently.
+
+These features collectively aim to alleviate the pain points of managing numerous student inquiries, tracking admission pipeline statuses, processing files, and retrieving individual student profile information, ultimately improving the overall efficiency of the Admission Office [1][2].","**AI Hub for Admission Office**
+
+- Pain points
+ - Dealing with many students’ inquiries
+ - Each student need to track the states in the admission pipeline
+ - File processing is a pain
+ - Email responses are slow
+ - Takes time to retrieve an individual student’s profile information
+ - Payment and refund status tracking is time-consuming
+- How AI Hub addresses the challenges
+ - Payment and refund status lookup by AI text-to-sql queries
+ - Communication email auto-categorization
+ - Email drafting by AI based on system and user prompts for each scenario
+ - Integration with existing tools and systems
+ - Knowledge base about the admission policies for Q and A
+ - Comparing documents using AI
+
+**AI Hub for Human Resource**
+
+---
+
+<!-- image -->
+
+AI Hub solution proposal for [CLIENT_NAME]
+
+The proposed solution centralizes infrastructure management, model deployment and inference, has a transparent pricing which is usage-based, and allows staff, faculty and researchers to launch custom chat assistants and build custom agentic workflows.
+
+We call this BeamData’s AI Hub. Let’s take a look at a few examples of how AI Hub can be used by end users in different roles.
+
+**AI Hub for Admission Office**
+
+---
+
+**AI Hub for Instructors and Course Developers**
+
+- Pain Points
+ - Course content development takes significant effort and time
+ - Assignment grading is time consuming
+ - Student support requires a lot of teaching assistant hours
+ - Years of learning materials cannot be easily turned into AI-friendly format
+- How AI Hub addresses the challenges
+ - AI Hub can be used to create a knowledge base by converting all past materials into vectorized content for queries
+ - AI Hub can be customized for assignment grading
+ - AI Hub can be customized to create workflows for content development. For example, converting slides or lecture videos into transcriptions, reviewed by instructors, and then AI voiceover can be added to generate a lecture or tutorial video
+
+**AI Hub for IT & Security**",4.680093050003052,3,1,0.9999999999,1.0,0.8235294117647058,0.9881813668319369,0.8237434655543874,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What are some of the AI Hub's features that support compliance with intellectual property and privacy regulations?,AI / data capabilities,medium,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,04 Solution Design and Execution Strategy > 4.2 AI Platform Services > 4.2.2 Compliance with Intellectual Property and Privacy Regulations,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '04 Solution Design and Execution Strategy > 4.2 AI Platform Services > 4.2.2 Compliance with Intellectual Property and Privacy Regulations', 'page': '', 'chunk_id': '544b4952b637637a7cf0c1d271b1d8e33b0b92eb'}","Compliance-supporting features include control over model selection, deployment location, whether file uploads are allowed, and whether data can be used for model training or customization. The platform is designed with security, infrastructure-team control, and compliance with IP and privacy regulations in mind.","The AI Hub is developed with security and compliance in mind. It gives the infrastructure and compliance teams the options to decide the type of models to use, where to deploy the models and services, whether to allow file uploading, whether data can be used for model training and customization. The AI Hub ensures strict compliance with global and regional intellectual property (IP) and privacy regulations throughout the lifecycle of AI infrastructure and GenAI platform delivery. Our commitments include:","The AI Hub is designed with several features that support compliance with intellectual property (IP) and privacy regulations:
+
+1. **Infrastructure and Compliance Options**: The AI Hub provides infrastructure and compliance teams with options to decide on the types of models to use, where to deploy them, and whether to allow file uploads or use data for model training and customization. This flexibility helps ensure adherence to relevant regulations throughout the AI infrastructure lifecycle and GenAI platform delivery [1].
+
+2. **Strict Compliance Assurance**: The AI Hub ensures strict compliance with global and regional IP and privacy regulations, which is a fundamental commitment throughout the lifecycle of its services [1].
+
+3. **Centralized Monitoring and Observability**: The AI Hub offers centralized monitoring and observability, allowing organizations to understand how AI is utilized across different departments. This feature aids in discovering best practices and improving compliance-related practices [3].
+
+4. **Customized Training Content**: The AI Hub can be customized to produce IT and security training content and assessments, ensuring that all staff are properly trained on security, privacy, and compliance matters [3].
+
+These features collectively enhance the AI Hub's capability to maintain compliance with intellectual property and privacy regulations.","The AI Hub is developed with security and compliance in mind. It gives the infrastructure and compliance teams the options to decide the type of models to use, where to deploy the models and services, whether to allow file uploading, whether data can be used for model training and customization.
+
+The AI Hub ensures strict compliance with global and regional intellectual property (IP) and privacy regulations throughout the lifecycle of AI infrastructure and GenAI platform delivery. Our commitments include:
+
+---
+
+- The AI Hub’s workflow tool feature can be used to build automation workflows so interaction data can be read from and written to the CRM, ERP, or other systems. We will use the AI Hub to build integration endpoints.
+- AI infrastructure
+ - The AI Hub is flexible and can support different types of AI infrastructure. The end users can choose to deploy and serve open-source LLMs directly via the AI Hub, or provide API keys to access commercial LLM models such as GPT, Claudi, or Gemini.
+
+---
+
+- The added benefit is centralized monitoring and observability so the University knows HOW AI is used by different departments and has the ability to discover best practices and further improve cost structure.
+ - AI Hub can be customized to produce IT and security training content and assessments to make sure that all staff are trained properly on security, privacy, and compliance
+ - The data and AI team will also have access to LLM model customization and use the AI Hub to decide the best model to use for a given use case, resulting in further cost reduction.
+ - Allowing students to bring their own ChatGPT or Gemini API keys will also help Universities simplify the cost management and communications and encourage the adoption of university AI platforms.",6.369415760040283,3,4,0.9999999999,1.0,0.8571428571428571,0.9790762868377345,0.6362454924254889,0.75
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,Can you describe the AI Hub's deployment options and how they integrate with existing digital infrastructure?,AI / data capabilities,medium,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.2 AI Infrastructure,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.2 AI Infrastructure', 'page': '', 'chunk_id': 'fc5dba57eea74809197d80abf7424ec23fd06b22'}","AI Hub can be deployed on-premise, in a private cloud, or as a SaaS model. It can integrate with existing infrastructure by automatically deploying API endpoints for website chatbots and by indexing student data and learning content into vector databases so LMS and SIS systems can connect through APIs and conversational chat interfaces.","- The AI Hub can be deployed on-premise (managed by Beamdata), private cloud, or used by [CLIENT_NAME] in a SaaS model. - Beam data can help deploy the AI platform to be integrated seamlessly with [CLIENT_NAME]’s existing digital infrastructure. - For example, AI Hub can be used to configure the conversational chatbot with system configuration. An API endpoint will be deployed automatically so a chatbot on [CLIENT_NAME]’s website can use the API for integration. - AI Hub can also be used to index all student data and learning content into vector databases and build a knowledge base about the content and students. The LMS and SIS can then integrate with the knowledge base via API and conversational chat UI.","The AI Hub offers flexible deployment options, including on-premise management by [CLIENT_NAME], private cloud, or a Software as a Service (SaaS) model. This versatility allows [CLIENT_NAME] to choose the deployment method that best fits their operational needs [1].
+
+In terms of integration with existing digital infrastructure, the AI Hub can be seamlessly integrated into [CLIENT_NAME]’s systems. For instance, it can configure a conversational chatbot that automatically deploys an API endpoint, enabling the chatbot to interact with [CLIENT_NAME]’s website [1]. Additionally, the AI Hub can index all student data and learning content into vector databases, creating a knowledge base that can be accessed by Learning Management Systems (LMS) and Student Information Systems (SIS) through API and conversational chat user interfaces [1].
+
+Furthermore, the AI Hub's workflow tool feature allows for the creation of automation workflows, facilitating data interaction with Customer Relationship Management (CRM), Enterprise Resource Planning (ERP), or other systems by building integration endpoints [2]. This comprehensive approach ensures that the AI Hub not only fits into the existing digital landscape but also enhances it through effective data management and automation capabilities.","- The AI Hub can be deployed on-premise (managed by [CLIENT_NAME]), private cloud, or used by [CLIENT_NAME] in a SaaS model.
+- [CLIENT_NAME] can help deploy the AI platform to be integrated seamlessly with [CLIENT_NAME]’s existing digital infrastructure.
+ - For example, AI Hub can be used to configure the conversational chatbot with system configuration. An API endpoint will be deployed automatically so a chatbot on [CLIENT_NAME]’s website can use the API for integration.
+ - AI Hub can also be used to index all student data and learning content into vector databases and build a knowledge base about the content and students. The LMS and SIS can then integrate with the knowledge base via API and conversational chat UI.
+
+---
+
+- The AI Hub’s workflow tool feature can be used to build automation workflows so interaction data can be read from and written to the CRM, ERP, or other systems. We will use the AI Hub to build integration endpoints.
+- AI infrastructure
+ - The AI Hub is flexible and can support different types of AI infrastructure. The end users can choose to deploy and serve open-source LLMs directly via the AI Hub, or provide API keys to access commercial LLM models such as GPT, Claudi, or Gemini.
+
+---
+
+The AI Hub supports the following AI infrastructure:
+
+- GPU services
+- Vector database deployment
+- LLM self-hosting and inference
+- Governance and guardrails
+- Context and memory management
+
+If [CLIENT_NAME] prefers to host their own open-weights LLMs such as Llama, deepseek, or mistral, BeamData has the ability to do that. We can help deploy a ray-cluster for fast LLM inference and the ray cluster and kuberay can help scale the services easily. The self-hosted LLMs and GPUs can be deployed on-premise via Kubernetes as well.
+
+If the client prefers a given Cloud provider, we can work with the provider’s PaaS tools such as Amazon’s Bedrock or Azure OpenAI for model hosting.",7.285646200180054,3,4,0.9999999999,1.0,1.0,0.8854013567163802,0.8528794602681502,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What are the key benefits offered to the university through Beamdata's AI Hub platform?,proposal-style questions,easy,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,04 Solution Design and Execution Strategy > 4.5 University Benefits & Indigenous Participation > 4.5.1 University Benefits,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '04 Solution Design and Execution Strategy > 4.5 University Benefits & Indigenous Participation > 4.5.1 University Benefits', 'page': '', 'chunk_id': 'e0a896ddf047676dff6fb723b42edfafe3c04d58'}","Key benefits include project-wide discounts on BeamData consulting services after project scoping, AI readiness assessments and detailed reporting, AI literacy e-learning for students, discounted role-based AI training, discounted WeCloudData Academy e-learning for staff, and a short AI Hub usage course for end users.","- Benefits related to project delivery and product use - Once the project is scoped out, we can provide a project-wide discount on Beamdata’s consulting services [CLIENT_NAME]. - Benefits related to AI assessments - Beamdata has AI readiness assessment tool and can help do the assessments and detailed reporting - Benefits related to training - We can offer AI literacy e-learning for all [CLIENT_NAME] students - We can offer 50% off discount on role-based AI training - We can offer 50% off discount code for [CLIENT_NAME] staff who want to enrol in our parent company WeCloudData Academy’s e-learning courses (savings of $49 per person per month) - We will create an AI Hub usage training short course for end users - Benefits related to collaboration","The key benefits offered to the university through BeamData's AI Hub platform include:
+
+1. **Centralized Monitoring and Observability**: The platform allows the university to monitor how AI is utilized across different departments, enabling the discovery of best practices and improvements in cost structure [2].
+
+2. **Customized Training Content**: AI Hub can be tailored to produce IT and security training content and assessments, ensuring that all staff are adequately trained on security, privacy, and compliance [2].
+
+3. **LLM Model Customization**: The data and AI team can access LLM model customization, using the AI Hub to select the most suitable model for specific use cases, which can lead to further cost reductions [2].
+
+4. **Cost Management Simplification**: By allowing students to use their own ChatGPT or Gemini API keys, the platform simplifies cost management and communication, promoting the adoption of university AI platforms [2].
+
+5. **Workflow Automation**: While the AI Hub provides standard workflow automation features, it also supports the development of customized services for more complex workflows, enhancing user experience during the integration of new tools [3]. 
+
+These benefits collectively enhance the university's operational efficiency and support the effective implementation of AI technologies.","Apart from the AI Hub platform which provides a suite of core features such as chat, knowledge base, RAG, and workflow management, BeamData can also help build customized models and infrastructure.
+
+---
+
+- The added benefit is centralized monitoring and observability so the University knows HOW AI is used by different departments and has the ability to discover best practices and further improve cost structure.
+ - AI Hub can be customized to produce IT and security training content and assessments to make sure that all staff are trained properly on security, privacy, and compliance
+ - The data and AI team will also have access to LLM model customization and use the AI Hub to decide the best model to use for a given use case, resulting in further cost reduction.
+ - Allowing students to bring their own ChatGPT or Gemini API keys will also help Universities simplify the cost management and communications and encourage the adoption of university AI platforms.
+
+---
+
+**4.4.2 AI Workflow Tool Development &amp; Integration**
+
+Each university has its own unique workflows when it comes to student admission, HR, operations, course design, and teaching. While BeamData’s AI Hub provides standard workflow automation features, more complex workflows will require customized services. BeamData has the experience and expertise to help [CLIENT_NAME] turn existing workflows into AI-based automation so the user experience is less impacted by the introduction of new tools.",5.987871408462524,3,5,0.0,0.0,0.8823529411764706,0.9999999999999117,0.6875614010462406,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What past projects demonstrate Beamdata's experience in AI and data solutions?,past projects,medium,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,06 Submission of relevant references,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '06 Submission of relevant references', 'page': '', 'chunk_id': 'e96551404402e96fa257cee81407f735255d9e1a'}","Examples include The Globe and Mail, where BeamData provided AI/ML recommendation engines, IT and cloud infrastructure optimization, infrastructure-as-code and platform engineering, LLM chatbots and agents, and ML recommendation engines. Another example is Communitech Hub, where BeamData supported startup clients with generative AI resource forecasting for fleet management and AI-driven emergency response assistants for fire-services software.","**1. The Globe and Mail** Engagement Period: 2021–Present Services Provided: AI/ML recommendation engines; Optimizations of IT and cloud infrastructure; Powering cloud and application automations using infrastructure-as-code and platform engineering; AI LLM chatbots and agents; ML recommendation engines. Roles Delivered: Project manager, IT/cloud architects, data engineers, data scientists, machine learning engineers, developers, UI/UX designers Contact: [PERSON_NAME], VP ([EMAIL]) **2. Communitech Hub** Engagement Period: 2021–Present Services Provided: AI support for startup clients, including generative AI-powered resource forecasting for fleet management and AI-driven emergency response assistants for fire services software.","BeamData Ltd. has a robust portfolio of over 30 AI and data projects delivered globally, showcasing our expertise across various sectors such as education, media, and healthcare [1]. Notable projects include:
+
+1. **The Globe and Mail**: We executed a ScaleAI-funded initiative that enhanced their digital subscription platform through AI-driven content recommendations and personalization. This project utilized natural language processing (NLP) and machine learning (ML) infrastructure optimization to significantly improve user engagement [2].
+
+2. **Healthcare Sector**: We consulted for startups to develop AI tools focused on patient data analysis and predictive modeling. These initiatives employed NLP and predictive algorithms to streamline diagnostics and enhance scalability, aligning with research-focused AI applications and data analysis services [2].
+
+3. **Empowering Journalism with Generative AI**: This ongoing project has received $800,000 in funding and exemplifies our commitment to leveraging generative AI in journalism [3].
+
+These projects reflect BeamData's capability to deliver high-impact AI solutions tailored to meet diverse client needs.","BeamData Ltd. has delivered over 30 AI and data projects globally, demonstrating our expertise in executing high-impact solutions tailored to diverse sectors, including education, media, and healthcare. Our project delivery approach integrates strategic consulting, advanced machine learning (ML) techniques, and robust data engineering to meet [CLIENT_NAME] needs. With a team averaging 9 years of experience in AI and data science, we have successfully implemented projects that enhance operational efficiency, user engagement, and academic outcomes, positioning us to deliver a scalable, secure AI platform for the University of Saskatchewan’s approximately 25,000 students and 5,000 faculty and staff.
+
+---
+
+BeamData has delivered transformative AI projects, including a ScaleAI-funded initiative for The Globe and Mail, where we enhanced their digital subscription platform with AI-driven content recommendations and personalization. Utilizing natural language processing (NLP) and ML infrastructure optimization, we improved user engagement with secure, user-focused AI solutions. In the healthcare sector, we consulted for startups, developing AI tools for patient data analysis and predictive modeling. These projects employed NLP and predictive algorithms to streamline diagnostics and improve scalability, supporting [CLIENT_NAME]’s needs for research-focused AI applications and data analysis services.
+
+---
+
+Since 2019, BeamData has provided data &amp; AI consulting and solution delivery services to more than 40 companies. We have partnerships with tech hubs such as [CLIENT_NAME] and [CLIENT_NAME] in Ontario and have been supporting tech startups on project implementations. We also delivered large-scale projects for companies such as [CLIENT_NAME] (part of [CLIENT_NAME]) and The Globe and Mail. Our most recent ongoing project “Empowering Journalism with Generative AI” received $800k funding from [CLIENT_NAME].
+
+<!-- image -->
+
+Clients we serviced before
+
+Our typical engagement process includes the following steps:
+
+<!-- image -->
+
+Beam’s engagement process",4.757887840270996,3,4,0.49999999995,0.0,0.9285714285714286,0.7787620501902586,0.6027396144946999,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What capabilities does Beamdata offer for customs and border protection in the WeBOC platform?,tender scope capability summaries,medium,Design and Implementation of an AI-Powered Data Platform for Pakistan Customs.xlsx,tender_scope_capabilities,Tender Scope Capabilities,,"{'source': 'Design and Implementation of an AI-Powered Data Platform for Pakistan Customs.xlsx', 'doc_type': 'tender_scope_capabilities', 'section': 'Tender Scope Capabilities', 'page': '', 'chunk_id': '4cf63a728ee5c3f69f7f47b8afbcbcb239a8f395'}","BeamData's WeBOC-related capabilities include current-state assessment, database and system-architecture evaluation, AI/ML integration, data assessment, advanced reporting and analytics, and frameworks to improve operational efficiency, compliance, and decision-making in customs operations.","Beam Data Capability Areas in Customs and Border Protection: The scope outlines several key capabilities that are critical in creating a data-driven, AI-enabled WeBOC platform for customs operations. These capabilities span across database management, AI/ML integration, data assessment, and advanced reporting and analytics frameworks. The implementation of these capabilities aims to enhance operational efficiency, compliance, and decision-making within the WeBOC ecosystem. 1. **Current State Assessment**: Comprehensive understanding of existing business processes and system architecture, including the evaluation of data infrastructure, hardware, and software integration to inform transformation strategy.","BeamData offers a comprehensive range of capabilities for customs and border protection in the WeBOC platform, aimed at transforming the operational environment through advanced data and AI methodologies. Key capabilities include the strategic design and execution of a data-driven, AI-enabled platform that enhances operational efficiencies in customs operations. This includes the establishment of robust database systems, modern data warehousing/lakehouse architectures, and sophisticated reporting and analytics functionalities that facilitate real-time insights and business intelligence [1].","The project encompasses a comprehensive range of capabilities aimed at transforming the WeBOC environment through advanced data and AI methodologies. Key capabilities include the strategic design and execution of a data-driven, AI-enabled platform which is foundational for enhancing operational efficiencies in customs operations. The capabilities also cover the establishment of robust database systems, modern data warehousing/lakehouse architectures, and sophisticated reporting and analytics functionalities that facilitate real-time insights and business intelligence
+
+---
+
+BeamData Capability Areas in Transportation: The proposed solution encompasses a high-availability SQL database infrastructure designed to enhance the reliability and fault tolerance of the Video Management System (VMS) at the Toronto Transit Commission (TTC). The implementation involves installation and configuration of two high-availability SQL Server clustering databases within the existing VMS architecture, ensuring continuous operation and data synchronization to prevent service disruptions. Additionally, comprehensive training on SQL database processes will be provided, fostering knowledge transfer to improve the effectiveness of VMS operations
+
+---
+
+Apart from the AI Hub platform which provides a suite of core features such as chat, knowledge base, RAG, and workflow management, BeamData can also help build customized models and infrastructure.",3.537325143814087,3,1,0.0,1.0,0.875,0.9999999999999097,0.7798672653291074,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,How does Beamdata's AI Hub support IT and security teams in managing AI tools?,industry-specific capabilities from tender scopes,medium,Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx,proposal,04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.1 Pain Points & Proposed Solutions,,"{'source': 'Copy of CP-730126 - Generative Artificial Intelligence (AI) Software.docx', 'doc_type': 'proposal', 'section': '04 Solution Design and Execution Strategy > 4.1 Overview Service Architecture > 4.1.1 Pain Points & Proposed Solutions', 'page': '', 'chunk_id': '60d628dfadee49f6d9a6d44cd6d6fd53e6449da5'}","AI Hub supports IT and security teams by allowing secure on-premise, private-cloud, or public-cloud deployment governed by the IT infrastructure team. It centralizes AI tooling, supports common capabilities such as chat, RAG-based knowledge bases, content engineering, and workflow automation, and allows token usage and costs to be controlled by IT.","- Pain Points - With staff using their own ChatGPT or AI tool subscription, it’s not easy to track usage and form best practices. Knowledge sharing is very limited. - Governance of usage is a big headache - Cost optimization is difficult - How AI Hub addresses the challenges - AI Hub can be deployed securely on-premise or in the private/public cloud that’s governed by the IT infrastructure team - AI Hub as a centralized AI platform can be used to optimize AI tooling cost. It covers most commonly used AI features such as chat, knowledge base via RAG and content engineering, workflow automation. The token usage can be controlled by IT and sporadic users won’t waste too much license cost","BeamData's AI Hub supports IT and security teams in managing AI tools through several key features. The platform includes built-in security and governance controls, which help ensure that AI applications adhere to organizational policies and compliance requirements [1]. Additionally, the AI Hub provides governance and guardrails, allowing IT teams to maintain oversight and control over AI deployments [2]. This structured approach enables organizations to securely leverage internal knowledge while automating business processes, thus addressing security concerns associated with AI adoption [3].","Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+Retrieval-Augmented Generation (RAG), AI agents, workflow automation, and low-code/no-code application
+development capabilities. The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for
+managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and
+on-premise deployments. AI Hub enables organizations to build, deploy, and manage AI-powered assistants, knowledge
+systems, and business automation workflows through a unified platform.
+Results:
+● Model-Agnostic Architecture: Enables organizations to switch between multiple AI models and providers
+without application redesign, reducing vendor lock-in.
+
+---
+
+The AI Hub supports the following AI infrastructure:
+
+- GPU services
+- Vector database deployment
+- LLM self-hosting and inference
+- Governance and guardrails
+- Context and memory management
+
+If [CLIENT_NAME] prefers to host their own open-weights LLMs such as Llama, deepseek, or mistral, BeamData has the ability to do that. We can help deploy a ray-cluster for fast LLM inference and the ray cluster and kuberay can help scale the services easily. The self-hosted LLMs and GPUs can be deployed on-premise via Kubernetes as well.
+
+If the client prefers a given Cloud provider, we can work with the provider’s PaaS tools such as Amazon’s Bedrock or Azure OpenAI for model hosting.
+
+---
+
+Heading:
+AI Hub Enterprise Agent Platform: ""A Model-Agnostic AI Operating System for Enterprise Knowledge, Automation, and
+Agentic Workflows""
+Problem:
+Many enterprises face challenges adopting AI at scale due to fragmented tools, vendor lock-in, security concerns, and the
+need to support both cloud and on-premise deployments. Organizations require a flexible AI platform that can integrate
+with multiple foundation models, securely leverage internal knowledge, automate business processes, and enable rapid
+development of AI applications without being tied to a single AI vendor or infrastructure provider.
+Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,",4.079016923904419,3,3,0.9999999999,0.6666666666666666,0.4,0.9999999999998962,0.7266524316394276,1.0
+reranked_k30_top3,sentence-transformers/all-MiniLM-L6-v2,gpt-4o-mini,gpt-4o,800,150,30,3,cross-encoder/ms-marco-MiniLM-L-6-v2,What are the capabilities of Beamdata's AI Hub in the context of RAG knowledge base management?,in-scope questions,medium,USask - GenAI Software.xlsx,tender_scope_capabilities,Tender Scope Capabilities,,"{'source': 'USask - GenAI Software.xlsx', 'doc_type': 'tender_scope_capabilities', 'section': 'Tender Scope Capabilities', 'page': '', 'chunk_id': 'c91f1acae2ebe1882ad925812f6878014d619a50'}","For RAG knowledge-base management, BeamData's AI Hub supports data integration across multiple sources, analytics and BI capabilities for reporting and visualization, and cloud infrastructure for scalable storage and processing. These capabilities help organizations build unified, accessible knowledge and data-management solutions.","1. **Data Integration Services**: Solutions designed to combine data from multiple sources, ensuring that users can access a unified view of data across platforms. 2. **Data Analytics and Business Intelligence Tools**: Incorporating tools and methodologies for analyzing data, enabling organizations to derive actionable insights and make data-driven decisions. This includes capabilities that facilitate reporting outputs and data visualization. 3. **Cloud Infrastructure**: Deployment and management of cloud-based services to support scalability and accessibility of data management solutions. This includes the use of cloud platforms for data storage and processing.","BeamData's AI Hub offers several capabilities in the context of Retrieval-Augmented Generation (RAG) knowledge base management. The platform includes a Data Hub specifically designed for managing enterprise knowledge sources, which is essential for effective RAG implementation [1]. Additionally, it supports intelligent knowledge search and compliance-aware information retrieval, enabling organizations to provide contextual, evidence-based responses from approved resources [3]. 
+
+Furthermore, the AI Hub's model-agnostic architecture allows organizations to integrate multiple AI models and providers, facilitating flexibility in knowledge management without the need for application redesign [1]. This combination of features enables organizations to build, deploy, and manage AI-powered assistants and knowledge systems efficiently [1][2].","Solution:
+BeamData developed AI Hub, a model-agnostic enterprise AI platform that combines conversational AI,
+Retrieval-Augmented Generation (RAG), AI agents, workflow automation, and low-code/no-code application
+development capabilities. The platform includes a Model Hub for connecting to multiple LLM providers, a Data Hub for
+managing enterprise knowledge sources, built-in security and governance controls, and support for both cloud and
+on-premise deployments. AI Hub enables organizations to build, deploy, and manage AI-powered assistants, knowledge
+systems, and business automation workflows through a unified platform.
+Results:
+● Model-Agnostic Architecture: Enables organizations to switch between multiple AI models and providers
+without application redesign, reducing vendor lock-in.
+
+---
+
+Apart from the AI Hub platform which provides a suite of core features such as chat, knowledge base, RAG, and workflow management, BeamData can also help build customized models and infrastructure.
+
+---
+
+support internal operations, and enhance overall healthcare experiences while maintaining strong governance and
+compliance standards.
+Solution:
+BeamData developed a conversational AI assistant designed to support women’s health education, patient engagement,
+and healthcare navigation. The solution leverages Retrieval-Augmented Generation (RAG), enterprise knowledge
+management, and AI workflow automation to provide contextual, evidence-based responses from approved healthcare
+resources and internal knowledge bases. The platform incorporates intelligent knowledge search, compliance-aware
+information retrieval, automated support capabilities, and analytics dashboards to help both patients and healthcare
+teams access information more efficiently while maintaining operational oversight.",3.3809256553649902,3,4,0.0,0.5,0.6666666666666666,0.8910834843120984,0.807910678832212,1.0

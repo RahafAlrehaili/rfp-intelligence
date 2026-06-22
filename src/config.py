@@ -17,13 +17,11 @@ ROOT_DIR = Path(__file__).parent.parent
 
 DATA_DIR = ROOT_DIR / "data"
 
-RAW_DOCS_DIR = DATA_DIR / "raw_docs"
 
 CHROMA_DIR = DATA_DIR / "chroma_db"
 
 CHUNKS_JSON = DATA_DIR / "chunks.json"
 
-RAW_DOCS_DIR.mkdir(parents=True, exist_ok=True)
 CHROMA_DIR.mkdir(parents=True, exist_ok=True)
 
 # ============================================================
@@ -52,10 +50,9 @@ COLLECTION_NAME = "rfp_kb_langchain"
 # Retrieval
 # ============================================================
 
-RETRIEVER_K = 20
+RETRIEVER_K = 40
 
 RERANK_TOP_N = 5
-
 # ============================================================
 # OpenAI
 # ============================================================
@@ -109,7 +106,6 @@ def print_config():
     print("=" * 60)
 
     print(f"ROOT_DIR:         {ROOT_DIR}")
-    print(f"RAW_DOCS_DIR:     {RAW_DOCS_DIR}")
     print(f"CHROMA_DIR:       {CHROMA_DIR}")
 
     print(f"CHUNK_SIZE:       {CHUNK_SIZE}")
