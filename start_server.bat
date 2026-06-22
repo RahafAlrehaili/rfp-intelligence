@@ -3,8 +3,9 @@
 :: يستمر حتى لو أُغلق الـ terminal الأصلي
 
 set PROJ_DIR=%~dp0
-set PYTHON="C:\Program Files\Python312\python.exe"
+set PYTHON=python
 set PORT=8000
+set PYTHONIOENCODING=utf-8
 
 echo.
 echo  Starting RFP Intelligence Server on http://127.0.0.1:%PORT%

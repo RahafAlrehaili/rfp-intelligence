@@ -44,15 +44,15 @@ import pdfplumber
 from dotenv import load_dotenv
 from langchain_core.documents import Document
 from openai import OpenAI
-from vectorstores import ChromaVectorStore
+from src.vectorstores import ChromaVectorStore
 
 try:
     from docling.document_converter import DocumentConverter
 except Exception:
     DocumentConverter = None
 
-import config
-from chunking_langchain import SmartChunker
+from src import config
+from src.chunking_langchain import SmartChunker
 
 load_dotenv()
 
