@@ -42,6 +42,7 @@ class DraftRequest(BaseModel):
 class SimilarRequest(BaseModel):
     query: str = Field(..., min_length=3)
     top_k: int = Field(default=8, ge=1, le=20)
+    doc_type: Optional[str] = None
 
 
 _qa_chain = None
@@ -99,6 +100,28 @@ def qa(req: QARequest):
 @app.post("/api/draft")
 def draft(req: DraftRequest):
     try:
+        SEMANTIC_THRESHOLD = 0.35
+
+        # Quick relevance check before spending LLM tokens
+        probe = HybridRetriever(alpha=0.6).retrieve(
+            query=req.section_prompt,
+            top_k=3,
+            semantic_k=3,
+            bm25_k=3,
+        )
+        top_semantic = max(
+            (d.metadata.get("semantic_score") or 0.0 for d in probe),
+            default=0.0,
+        )
+        if top_semantic < SEMANTIC_THRESHOLD:
+            return {
+                "section_prompt": req.section_prompt,
+                "draft_text": "The knowledge base does not contain relevant information to draft this section.",
+                "sources": [],
+                "word_count": 0,
+                "method": "lcel_hybrid_draft",
+            }
+
         result = get_draft_chain().invoke(
             {
                 "section_prompt": req.section_prompt,
@@ -124,12 +147,25 @@ def similar(req: SimilarRequest):
     try:
         retriever = HybridRetriever(alpha=0.6)
 
+        # Fetch a larger pool when filtering so we have enough after narrowing
+        fetch_k = req.top_k * 4 if req.doc_type else req.top_k
+
         docs = retriever.retrieve(
             query=req.query,
-            top_k=req.top_k,
-            semantic_k=req.top_k,
-            bm25_k=req.top_k,
+            top_k=fetch_k,
+            semantic_k=fetch_k,
+            bm25_k=fetch_k,
+            preferred_doc_type=req.doc_type,
         )
+
+        # Drop results with no real semantic similarity to the query
+        SEMANTIC_THRESHOLD = 0.35
+        docs = [d for d in docs if (d.metadata.get("semantic_score") or 0.0) >= SEMANTIC_THRESHOLD]
+
+        # Hard filter by doc_type then trim to requested top_k
+        if req.doc_type:
+            docs = [d for d in docs if d.metadata.get("doc_type") == req.doc_type]
+        docs = docs[: req.top_k]
 
         items = []
 
@@ -151,6 +187,7 @@ def similar(req: SimilarRequest):
 
         return {
             "query": req.query,
+            "doc_type_filter": req.doc_type,
             "n_results": len(items),
             "items": items,
         }
