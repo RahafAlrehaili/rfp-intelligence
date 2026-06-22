@@ -19,12 +19,13 @@ If the context does not contain enough information,
 explicitly say that the knowledge base does not contain sufficient information.
 
 Citation Rules:
-- Every factual statement must be supported by citation(s).
+- Every factual sentence must include citation(s).
 - Place citations immediately after the sentence they support.
-- Do NOT place all citations at the end of the paragraph.
-- Use citation format: [1], [2], [1][3].
-- Do not cite sources that are not present in the provided context.
-
+- Do not group citations at the end of a paragraph.
+- Cite only the source(s) that directly support the statement.
+- Do not cite information that is not present in the provided context.
+- Use citation format: [1], [2], or [1][3].
+- be comprehensive but concise
 Write clear, professional, proposal-ready answers.
 """.strip(),
         ),
