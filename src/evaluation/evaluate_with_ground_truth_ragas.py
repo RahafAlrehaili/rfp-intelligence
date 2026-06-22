@@ -31,6 +31,11 @@ try:
 except ImportError:
     SemanticSimilarity = None
 
+try:
+    from ragas.metrics import ContextRecall
+except ImportError:
+    ContextRecall = None
+
 from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
 
@@ -62,6 +67,10 @@ JUDGE_MODEL = "gpt-4o"
 
 
 RETRIEVAL_SETUPS = [
+    {
+        "name": "no_rag",
+        "retriever": None,
+    },
     {
         "name": "semantic",
         "retriever": SemanticRetriever(),
@@ -164,6 +173,29 @@ def generate_answer(question: str, docs) -> str:
     )
 
     return call_openai(prompt_value)
+
+
+def generate_answer_no_rag(question: str) -> str:
+    """Baseline: call the LLM directly with no retrieved context."""
+    client = OpenAI(api_key=config.OPENAI_API_KEY)
+
+    response = client.chat.completions.create(
+        model=config.LLM_MODEL,
+        temperature=config.LLM_TEMPERATURE,
+        max_tokens=config.LLM_MAX_TOKENS,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an AI assistant. "
+                    "Answer the user's question using only your own knowledge."
+                ),
+            },
+            {"role": "user", "content": question},
+        ],
+    )
+
+    return response.choices[0].message.content.strip()
 
 
 # =============================================================================
@@ -324,6 +356,12 @@ async def main():
         else None
     )
 
+    context_recall_metric = (
+        ContextRecall(llm=evaluator_llm)
+        if ContextRecall is not None
+        else None
+    )
+
     rows = []
 
     for setup in RETRIEVAL_SETUPS:
@@ -342,8 +380,15 @@ async def main():
             print(f"[{i}/{len(eval_rows)}] {question}")
 
             start_time = time.time()
-            docs = retriever.retrieve(question)
-            answer = generate_answer(question=question, docs=docs)
+            is_no_rag = setup["retriever"] is None
+
+            if is_no_rag:
+                docs = []
+                answer = generate_answer_no_rag(question)
+            else:
+                docs = retriever.retrieve(question)
+                answer = generate_answer(question=question, docs=docs)
+
             latency = time.time() - start_time
 
             retrieved_contexts = [doc.page_content for doc in docs]
@@ -352,7 +397,7 @@ async def main():
             sample = SingleTurnSample(
                 user_input=question,
                 response=answer,
-                retrieved_contexts=retrieved_contexts,
+                retrieved_contexts=retrieved_contexts if retrieved_contexts else [""],
                 reference=expected_answer,
                 reference_contexts=[ground_truth_context],
             )
@@ -362,6 +407,7 @@ async def main():
             answer_relevancy = await safe_score(answer_relevancy_metric, sample)
             factual_correctness = await safe_score(factual_correctness_metric, sample)
             semantic_similarity = await safe_score(semantic_similarity_metric, sample)
+            context_recall = await safe_score(context_recall_metric, sample)
 
             claims = extract_sentences_with_citations(answer)
             cite_acc = citation_accuracy(claims, docs)
@@ -391,6 +437,7 @@ async def main():
                 "n_contexts": len(docs),
                 "n_claims": len(claims),
                 "context_precision": context_precision,
+                "context_recall": context_recall,
                 "faithfulness": faithfulness,
                 "answer_relevancy": answer_relevancy,
                 "factual_correctness": factual_correctness,
@@ -403,6 +450,7 @@ async def main():
                 {
                     "setup": setup["name"],
                     "context_precision": context_precision,
+                    "context_recall": context_recall,
                     "faithfulness": faithfulness,
                     "answer_relevancy": answer_relevancy,
                     "factual_correctness": factual_correctness,
@@ -418,6 +466,7 @@ async def main():
 
     metric_columns = [
         "context_precision",
+        "context_recall",
         "faithfulness",
         "answer_relevancy",
         "factual_correctness",
