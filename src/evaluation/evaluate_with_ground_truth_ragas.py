@@ -1,9 +1,12 @@
 import asyncio
 import json
 import re
+import sys
 from pathlib import Path
 import time
 from typing import Any
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 import pandas as pd
 from openai import OpenAI
@@ -20,11 +23,6 @@ try:
     from ragas.metrics import LLMContextPrecisionWithReference as ContextPrecisionMetric
 except ImportError:
     from ragas.metrics import LLMContextPrecisionWithoutReference as ContextPrecisionMetric
-
-try:
-    from ragas.metrics import FactualCorrectness
-except ImportError:
-    FactualCorrectness = None
 
 try:
     from ragas.metrics import SemanticSimilarity
@@ -343,13 +341,6 @@ async def main():
     # This uses reference context if the installed RAGAS supports it.
     context_precision_metric = ContextPrecisionMetric(llm=evaluator_llm)
 
-    # Metrics that use expected_answer as ground truth.
-    factual_correctness_metric = (
-        FactualCorrectness(llm=evaluator_llm)
-        if FactualCorrectness is not None
-        else None
-    )
-
     semantic_similarity_metric = (
         SemanticSimilarity(embeddings=evaluator_embeddings)
         if SemanticSimilarity is not None
@@ -405,7 +396,6 @@ async def main():
             context_precision = await safe_score(context_precision_metric, sample)
             faithfulness = await safe_score(faithfulness_metric, sample)
             answer_relevancy = await safe_score(answer_relevancy_metric, sample)
-            factual_correctness = await safe_score(factual_correctness_metric, sample)
             semantic_similarity = await safe_score(semantic_similarity_metric, sample)
             context_recall = await safe_score(context_recall_metric, sample)
 
@@ -440,7 +430,6 @@ async def main():
                 "context_recall": context_recall,
                 "faithfulness": faithfulness,
                 "answer_relevancy": answer_relevancy,
-                "factual_correctness": factual_correctness,
                 "semantic_similarity": semantic_similarity,
                 "citation_accuracy": cite_acc,
             }
@@ -453,7 +442,6 @@ async def main():
                     "context_recall": context_recall,
                     "faithfulness": faithfulness,
                     "answer_relevancy": answer_relevancy,
-                    "factual_correctness": factual_correctness,
                     "semantic_similarity": semantic_similarity,
                     "citation_accuracy": cite_acc,
                 }
@@ -469,7 +457,6 @@ async def main():
         "context_recall",
         "faithfulness",
         "answer_relevancy",
-        "factual_correctness",
         "semantic_similarity",
         "citation_accuracy",
         "latency_seconds",

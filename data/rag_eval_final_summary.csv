@@ -1,0 +1,5 @@
+﻿setup,context_precision,context_recall,faithfulness,answer_relevancy,semantic_similarity,citation_accuracy
+no_rag,0.0,0.0,0.056,0.657,0.667,
+semantic,0.341,0.708,0.879,0.908,0.747,0.959
+hybrid,0.493,0.761,0.862,0.913,0.745,0.936
+reranked,0.532,0.587,0.82,0.852,0.732,0.983
