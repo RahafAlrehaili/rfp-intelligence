@@ -4,145 +4,77 @@
 
 The RFP Intelligence System is a Retrieval-Augmented Generation (RAG) platform designed to help proposal teams search organizational knowledge, retrieve supporting evidence, and generate grounded RFP responses.
 
-The system uses Beam Data and WeCloudData knowledge assets, proposal documents, tender documents, and past project information as its knowledge base.
+The system uses BeamData and WeCloudData knowledge assets, proposal documents, tender documents, and past project information as its knowledge base.
 
 ---
 
-# System Architecture
+## System Architecture
 
 ```text
 Source Documents
 ↓
-Parsing
+Multi-Format Parsing
 ↓
-Cleaning
+Cleaning & Metadata Extraction
 ↓
-PII Masking
+PII Masking for Confidential Documents
 ↓
-Chunking
+Recursive Chunking
 ↓
 Embeddings
 ↓
-ChromaDB
+ChromaDB Vector Store
 ↓
-Retrieval
+Hybrid Retrieval
 ↓
-LLM Generation
+Cross-Encoder Reranking
 ↓
-Cited Response
+GPT-4o-mini Generation
+↓
+Citation-Backed Response
 ```
 
 ---
 
-# Project Structure
+## Project Structure
 
 ```text
 RFP/
-
 ├── _source_data/
-│   ├── Beam_WeCloud_RAG_Documents/
-│   └── Tenders - Raw and Annotated/
-│
 ├── data/
-│   └── chroma_db/
-│
+│   ├── chroma_db/
+│   ├── eval_runs/
+│   └── evaluation outputs
 ├── data_langchain/
-│   └── kb_documents.json
-│
+│   ├── kb_documents.json
+│   └── build_log_v2.txt
 ├── frontend/
 │   └── index.html
-│
 └── src/
     ├── api.py
     ├── build_kb.py
-    ├── chunking_langchain.py
-    ├── pii_masking.py
-    ├── vectorstores.py
     ├── config.py
-    │
     ├── chains/
-    │   ├── qa_chain.py
-    │   └── draft_chain.py
-    │
-    ├── prompts/
-    │   ├── qa.py
-    │   └── draft.py
-    │
     ├── retrievers/
-    │   ├── semantic.py
-    │   ├── hybrid.py
-    │   └── reranked.py
-    │
+    ├── prompts/
     └── evaluation/
-        ├── generate_eval_questions.py
-        ├── evaluate_without_reference.py
-        └── wandb_logger.py
 ```
 
 ---
 
-# Environment Setup
+## Source Data
 
-## Install UV
+Main source collections:
 
-```powershell
-pip install uv
-```
-
-or
-
-```powershell
-winget install astral-sh.uv
-```
+- BeamData and WeCloudData company knowledge
+- Past project documents
+- Proposal documents
+- Tender and procurement documents
+- Capability and marketing materials
 
 ---
 
-## Create Virtual Environment
-
-```powershell
-uv venv
-```
-
----
-
-## Activate Environment
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
----
-
-## Install Dependencies
-
-```powershell
-uv pip install -r requirements.txt
-```
-
----
-
-# Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-OPENAI_API_KEY=YOUR_API_KEY
-OPENAI_MODEL=gpt-4o-mini
-LLM_TEMPERATURE=0.1
-LLM_MAX_TOKENS=1000
-```
-
----
-
-# Configuration
-
-Main configuration file:
-
-```text
-src/config.py
-```
-
-Key parameters:
+## Configuration
 
 ```python
 CHUNK_SIZE = 800
@@ -150,7 +82,7 @@ CHUNK_OVERLAP = 150
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
-RETRIEVER_K = 20
+RETRIEVER_K = 40
 RERANK_TOP_N = 5
 
 LLM_MODEL = "gpt-4o-mini"
@@ -158,50 +90,117 @@ LLM_MODEL = "gpt-4o-mini"
 
 ---
 
-# Source Documents
+## Knowledge Base Construction
 
-Place source files under:
+### PDF Pipeline
+- pdfplumber
+- Page-aware extraction
+- Citation support
+
+### DOCX Pipeline
+- python-docx
+- Section-aware parsing
+- Proposal structure preservation
+
+### Excel Pipeline
+- openpyxl
+- Tender requirement extraction
+- Table-aware processing
+
+### Parallel Processing
+
+Documents are processed concurrently to improve scalability and reduce indexing time.
+
+---
+
+## Chunking Strategy
+
+The project uses RecursiveCharacterTextSplitter with:
+
+- Chunk Size: 800
+- Chunk Overlap: 150
+- Metadata preservation
+- Duplicate chunk removal
+- Section-aware chunking
+
+---
+
+## Retrieval Methods
+
+### Semantic Retrieval
+Vector similarity search using ChromaDB.
+
+### Hybrid Retrieval
+Semantic retrieval + BM25 keyword search.
+
+### Reranked Retrieval
+Hybrid retrieval followed by Cross-Encoder reranking.
+
+Reranker model:
 
 ```text
-_source_data/
-```
-
-Current folders:
-
-```text
-Confidential proposal documents
-Past project documents
-Tender documents
+cross-encoder/ms-marco-MiniLM-L-6-v2
 ```
 
 ---
 
-# Build Knowledge Base
+## Final Retrieval Configuration
 
-Build or rebuild the KB:
-
-```powershell
-python -m src.build_kb
+```python
+RETRIEVER_K = 40
+RERANK_TOP_N = 5
 ```
 
-Rebuild whenever:
+This configuration produced the strongest overall balance between retrieval quality, answer quality, and citation performance.
 
-* New files are added.
-* Chunking changes.
-* PII masking changes.
-* Metadata changes.
-* Embedding model changes.
+---
 
-Generated outputs:
+## Evaluation
+
+The project uses a ground-truth evaluation framework based on:
+
+- RAGAS
+- LLM-as-a-Judge
+- Ground-truth answers
+- Ground-truth contexts
+
+### Metrics
+
+Retrieval:
+- Context Precision
+- Context Recall
+
+Generation:
+- Faithfulness
+- Answer Relevancy
+- Semantic Similarity
+
+Citation:
+- Citation Accuracy
+
+---
+
+## Reranker Experiments
+
+Multiple reranking configurations were evaluated:
+
+- K20 Top3
+- K30 Top3
+- K40 Top3
+- K50 Top3
+- K30 Top5
+- K40 Top5
+- K30 Top7
+
+Results are stored in:
 
 ```text
-data_langchain/kb_documents.json
-data/chroma_db/
+data/eval_runs/
 ```
 
 ---
 
-# Run API
+## Run API
 
 ```powershell
 uvicorn src.api:app --reload
@@ -215,232 +214,30 @@ http://127.0.0.1:8000
 
 ---
 
-# Frontend
+## Recommended Workflow
 
-Frontend file:
-
-```text
-frontend/index.html
-```
-
-Make sure the API is running before opening the frontend.
-
----
-
-# Retrieval Methods
-
-## Semantic Retrieval
-
-Vector similarity search using ChromaDB.
+1. Add documents to `_source_data/`
+2. Build the knowledge base
+3. Run the API
+4. Test QA and proposal drafting
+5. Run evaluation
+6. Review evaluation results
 
 ---
 
-## Hybrid Retrieval
+## Key Findings
 
-Combines:
-
-```text
-Semantic Similarity
-+
-BM25 Keyword Search
-```
-
-Default weighting:
-
-```text
-0.6 Semantic
-0.4 BM25
-```
+- Hybrid retrieval improved retrieval coverage.
+- Reranking improved retrieval precision and citation accuracy.
+- Retrieval quality had a larger impact on answer quality than prompt engineering.
+- Information fragmentation across chunks was a major source of retrieval failure.
 
 ---
 
-## Reranked Retrieval
-
-Uses Hybrid Retrieval followed by CrossEncoder reranking.
-
-Typical reranker:
-
-```text
-cross-encoder/ms-marco-MiniLM-L-6-v2
-```
-
----
-
-# Example Questions
-
-```text
-What AI capabilities does the company provide?
-
-What experience does the company have in higher education?
-
-What technologies have been used in previous projects?
-
-What products support Retrieval-Augmented Generation (RAG)?
-
-What examples demonstrate workflow automation capabilities?
-
-What AI platform deployment experience does the company have?
-```
-
----
-
-# Generate Evaluation Questions
-
-```powershell
-python -m src.evaluation.generate_eval_questions
-```
-
-Output:
-
-```text
-data/eval_questions_auto.json
-```
-
-Review the generated questions manually.
-
-Save the reviewed version as:
-
-```text
-data/eval_questions_v1.json
-```
-
----
-
-# Run Evaluation
-
-```powershell
-python -m src.evaluation.evaluate_without_reference
-```
-
-Evaluated Retrieval Setups:
-
-* Semantic
-* Hybrid
-* Hybrid + Reranker
-
-Generated files:
-
-```text
-data/rag_eval_without_reference.csv
-data/rag_eval_summary.csv
-```
-
----
-
-# Evaluation Metrics
-
-### Context Precision
-
-Measures retrieval quality.
-
-### Faithfulness
-
-Measures grounding and hallucination risk.
-
-### Answer Relevancy
-
-Measures whether the answer addresses the question.
-
-### Citation Accuracy
-
-Custom metric that verifies whether cited chunks support the claims in the answer.
-
-### Latency
-
-Average response time.
-
----
-
-# Optional: Weights & Biases
-
-Install:
-
-```powershell
-uv pip install wandb
-```
-
-Login:
-
-```powershell
-wandb login
-```
-
-Used for:
-
-* Experiment tracking
-* Retriever comparison
-* Hyperparameter tracking
-* Evaluation dashboards
-
----
-
-# Recommended Workflow
-
-### 1. Add Documents
-
-```text
-_source_data/
-```
-
-### 2. Build Knowledge Base
-
-```powershell
-python -m src.build_kb
-```
-
-### 3. Run API
-
-```powershell
-uvicorn src.api:app --reload
-```
-
-### 4. Test Retrieval Manually
-
-Verify that answers and citations are correct.
-
-### 5. Generate Evaluation Questions
-
-```powershell
-python -m src.evaluation.generate_eval_questions
-```
-
-### 6. Review Questions
-
-Save the final benchmark as:
-
-```text
-data/eval_questions_v1.json
-```
-
-### 7. Run Evaluation
-
-```powershell
-python -m src.evaluation.evaluate_without_reference
-```
-
-### 8. Compare Results
-
-Open:
-
-```text
-data/rag_eval_summary.csv
-```
-
-Compare:
-
-* Semantic
-* Hybrid
-* Reranked
-
-and select the best-performing retrieval strategy.
-
----
-
-# Notes
-
-* Always review generated benchmark questions before evaluation.
-* Rebuild the KB after modifying parsing, chunking, masking, or metadata logic.
-* GPT-4o is used as the evaluation judge.
-* GPT-4o-mini is used for normal answer generation.
-* Citation Accuracy is a custom grounding metric.
-* Verify CSV evaluation outputs before enabling W&B tracking.
+## Future Improvements
+
+- Incremental indexing
+- Metadata-based retrieval filtering
+- Entity-aware chunking
+- Expanded document coverage
+- Additional reranker optimization
