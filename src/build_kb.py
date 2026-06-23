@@ -18,8 +18,7 @@ Processing flow:
 This version includes timing logs for each pipeline and the full build.
 
 Run:
-    python src/build_kb_langchain.py --reset
-    python src/build_kb_langchain.py --no-index
+   py -m src.build_kb --reset
 """
 
 from __future__ import annotations

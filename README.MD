@@ -4,7 +4,7 @@
 
 The RFP Intelligence System is a Retrieval-Augmented Generation (RAG) platform designed to help proposal teams search organizational knowledge, retrieve supporting evidence, and generate grounded RFP responses.
 
-The system uses BeamData and WeCloudData knowledge assets, proposal documents, tender documents, and past project information as its knowledge base.
+The system uses BeamData knowledge assets, proposal documents, tender documents, and past project information as its knowledge base.
 
 ---
 
@@ -211,7 +211,9 @@ Default URL:
 ```text
 http://127.0.0.1:8000
 ```
+To rebuild the knowledge base from scratch and clear the existing vector database, run:
 
+py -m src.build_kb --reset
 ---
 
 ## Recommended Workflow
@@ -230,14 +232,4 @@ http://127.0.0.1:8000
 - Hybrid retrieval improved retrieval coverage.
 - Reranking improved retrieval precision and citation accuracy.
 - Retrieval quality had a larger impact on answer quality than prompt engineering.
-- Information fragmentation across chunks was a major source of retrieval failure.
 
----
-
-## Future Improvements
-
-- Incremental indexing
-- Metadata-based retrieval filtering
-- Entity-aware chunking
-- Expanded document coverage
-- Additional reranker optimization
