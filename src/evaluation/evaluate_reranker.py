@@ -53,8 +53,7 @@ from src.retrievers.reranked import RerankedRetriever
 # Optional but useful: category, difficulty, source, doc_type, page, section
 EVAL_FILE = "data/eval_questions_v1_with_answers.xlsm"
 
-JUDGE_MODEL = "gpt-4o"
-# RERANKER_MODEL ="mixedbread-ai/mxbai-rerank-large-v2"
+JUDGE_MODEL = "gpt-5.5"
 RERANKER_MODEL ="cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 
