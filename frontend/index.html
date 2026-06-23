@@ -827,7 +827,7 @@ function openCitationModal(num) {
         `${chunk.source}${chunk.page_number ? ' · page ' + chunk.page_number : ''}`;
 
     document.getElementById('modal-score').textContent =
-        chunk.score ? chunk.score.toFixed(4) : 'N/A';
+        chunk.score ? chunk.score.toFixed(4) : '';
 
     document.getElementById('modal-doctype').textContent =
         chunk.doc_type || '';
@@ -883,7 +883,7 @@ function openCitationModal(num) {
             document.getElementById('draft-text').textContent = data.draft_text;
             document.getElementById('draft-wordcount').textContent = (data.word_count || 0) + ' words';
 
-            document.getElementById('draft-conf-label').textContent = 'N/A';
+            document.getElementById('draft-conf-label').textContent = '';
             document.getElementById('draft-conf-bar').style.width   = '0%';
 
             const srcEl = document.getElementById('draft-sources');
